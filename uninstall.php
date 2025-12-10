@@ -54,6 +54,20 @@ $options_to_delete = array(
     'caa_effect6_x_percent',
     'caa_effect6_origin_x',
     'caa_effect6_origin_y',
+    
+    // Effect 7: Move Away
+    'caa_effect7_move_distance',
+    
+    // Pro Version: Effect mappings
+    'caa_pro_effect_mappings',
+    
+    // Pro Version: Filtering settings
+    'caa_pro_enable_filtering',
+    'caa_pro_filter_mode',
+    'caa_pro_selected_post_types',
+    'caa_pro_include_pages',
+    'caa_pro_include_posts',
+    'caa_pro_selected_items',
 );
 
 // Delete all plugin options

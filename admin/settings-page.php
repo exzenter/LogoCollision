@@ -134,6 +134,70 @@ function caa_parse_mappings_from_post($mappings_data) {
     return $mappings;
 }
 
+// Note: Export Settings is handled in LogoCollision.php via admin_init hook
+// to allow sending headers before any output
+
+// Handle Import Settings
+if (isset($_POST['caa_import_settings']) && check_admin_referer('caa_import_settings_nonce')) {
+    $import_error = '';
+    $import_success = false;
+    
+    // Check if file was uploaded
+    if (!isset($_FILES['caa_settings_file']) || $_FILES['caa_settings_file']['error'] !== UPLOAD_ERR_OK) {
+        $import_error = __('Please select a valid settings file to import.', 'logo-collision');
+    } else {
+        // Validate file type by checking extension directly
+        // wp_check_filetype may not recognize .json files on all WordPress installations
+        $filename = isset($_FILES['caa_settings_file']['name']) ? sanitize_file_name($_FILES['caa_settings_file']['name']) : '';
+        $file_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if ($file_ext !== 'json') {
+            $import_error = __('Invalid file type. Please upload a JSON file.', 'logo-collision');
+        } else {
+            // Read and parse JSON
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading uploaded file
+            $json_content = file_get_contents($_FILES['caa_settings_file']['tmp_name']);
+            $import_data = json_decode($json_content, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $import_error = __('Invalid JSON file. Please check the file format.', 'logo-collision');
+            } elseif (!isset($import_data['plugin']) || $import_data['plugin'] !== 'logo-collision') {
+                $import_error = __('This file does not appear to be a Logo Collision settings file.', 'logo-collision');
+            } elseif (!isset($import_data['settings']) || !is_array($import_data['settings'])) {
+                $import_error = __('Invalid settings data in the file.', 'logo-collision');
+            } else {
+                // Valid import data - update options
+                $is_pro = defined('LOGO_COLLISION_PRO') && LOGO_COLLISION_PRO;
+                $imported_count = 0;
+                
+                foreach ($import_data['settings'] as $option_name => $option_value) {
+                    // Validate option name starts with caa_
+                    if (strpos($option_name, 'caa_') !== 0) {
+                        continue;
+                    }
+                    
+                    // For Free version, limit instances to 1
+                    if (!$is_pro && $option_name === 'caa_instances' && is_array($option_value)) {
+                        // Only keep instance 1
+                        $option_value = isset($option_value[1]) ? array(1 => $option_value[1]) : array();
+                    }
+                    
+                    update_option($option_name, $option_value);
+                    $imported_count++;
+                }
+                
+                $import_success = true;
+            }
+        }
+    }
+    
+    if ($import_error) {
+        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($import_error) . '</p></div>';
+    } elseif ($import_success) {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings imported successfully!', 'logo-collision') . '</p></div>';
+    }
+}
+
 // Handle per-instance Mappings form submission
 if (isset($_POST['caa_save_instance_mappings']) && check_admin_referer('caa_instance_mappings_nonce')) {
     $instance_id = isset($_POST['caa_instance_id']) ? absint($_POST['caa_instance_id']) : 1;
@@ -1319,6 +1383,71 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
         
         <?php submit_button(__('Save Changes', 'logo-collision'), 'primary', 'caa_save_settings'); ?>
     </form>
+    
+    <!-- Export/Import Settings Section -->
+    <div class="caa-export-import-section">
+        <h2><?php esc_html_e('Export / Import Settings', 'logo-collision'); ?></h2>
+        <p class="description">
+            <?php esc_html_e('Export your current settings to a JSON file for backup or transfer to another site. Import settings from a previously exported file.', 'logo-collision'); ?>
+        </p>
+        
+        <div class="caa-export-import-row">
+            <!-- Export Section -->
+            <div class="caa-export-box">
+                <h3><?php esc_html_e('Export Settings', 'logo-collision'); ?></h3>
+                <p><?php esc_html_e('Download all your current plugin settings as a JSON file.', 'logo-collision'); ?></p>
+                <form method="post" action="">
+                    <?php wp_nonce_field('caa_export_settings_nonce'); ?>
+                    <button type="submit" name="caa_export_settings" class="button button-secondary">
+                        <span class="dashicons dashicons-download" style="vertical-align: middle; margin-right: 5px;"></span>
+                        <?php esc_html_e('Export Settings', 'logo-collision'); ?>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Import Section -->
+            <div class="caa-import-box">
+                <h3><?php esc_html_e('Import Settings', 'logo-collision'); ?></h3>
+                <p><?php esc_html_e('Upload a previously exported JSON settings file.', 'logo-collision'); ?></p>
+                <form method="post" action="" enctype="multipart/form-data" id="caa-import-form">
+                    <?php wp_nonce_field('caa_import_settings_nonce'); ?>
+                    <div class="caa-import-file-row">
+                        <input type="file" name="caa_settings_file" id="caa_settings_file" accept=".json" />
+                        <button type="submit" name="caa_import_settings" class="button button-secondary" id="caa-import-btn">
+                            <span class="dashicons dashicons-upload" style="vertical-align: middle; margin-right: 5px;"></span>
+                            <?php esc_html_e('Import Settings', 'logo-collision'); ?>
+                        </button>
+                    </div>
+                    <p class="description" style="margin-top: 10px;">
+                        <strong><?php esc_html_e('Warning:', 'logo-collision'); ?></strong>
+                        <?php esc_html_e('Importing settings will overwrite all your current settings.', 'logo-collision'); ?>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+    (function($) {
+        $(document).ready(function() {
+            $('#caa-import-form').on('submit', function(e) {
+                var fileInput = $('#caa_settings_file');
+                if (!fileInput.val()) {
+                    alert('<?php echo esc_js(__('Please select a settings file to import.', 'logo-collision')); ?>');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                var confirmMessage = '<?php echo esc_js(__('Are you sure you want to import these settings? This will overwrite all your current plugin settings.', 'logo-collision')); ?>';
+                if (!confirm(confirmMessage)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    })(jQuery);
+    </script>
+    
     </div><!-- End General Settings Tab -->
     
     <!-- Pro Version Tab -->

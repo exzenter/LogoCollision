@@ -3,8 +3,8 @@ Contributors: wpmitch - exzent.de
 Tags: animation, scroll, gsap, header, logo
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.0.0
-Version: 1.0.0
+Stable tag: 1.0.1
+Version: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -30,6 +30,7 @@ Context-Aware Animation is a WordPress plugin that automatically detects when yo
 * Excluded elements - Specify elements that should not trigger animations
 * Easy configuration through WordPress admin settings
 * Powered by GSAP (GreenSock Animation Platform) for smooth, performant animations
+* **Export/Import Settings** - Backup your entire configuration to a JSON file and restore it anytime. Perfect for site migrations, staging to production deployments, or upgrading from Free to Pro without losing any settings!
 
 **Pro Features:**
 
@@ -72,6 +73,10 @@ All effects work well, but some are better for different scenarios:
 Enter comma-separated CSS selectors in the "Excluded Elements" field. For example:
 `#sidebar, .widget, .navigation, footer`
 
+= How do I backup my settings or migrate to a new site? =
+
+Use the Export/Import feature in General Settings. Click "Export Settings" to download a JSON file containing all your configurations. On the new site or after upgrading to Pro, simply import this file to restore all your settings instantly.
+
 = Does this work with all themes? =
 
 The plugin automatically detects common WordPress content areas. If your theme uses non-standard selectors, you may need to add custom CSS or modify the plugin's content detection.
@@ -87,6 +92,11 @@ No, this plugin does not slow down your theme. The required libraries (GSAP and 
 
 == Changelog ==
 
+= 1.0.1 =
+* Added Export/Import Settings - Backup your configuration to JSON and restore anytime
+* Perfect for site migrations, staging deployments, and upgrading to Pro without losing settings
+* Import is compatible between Free and Pro versions
+
 = 1.0.0 =
 * Initial release
 * 7 animation effects
@@ -95,6 +105,9 @@ No, this plugin does not slow down your theme. The required libraries (GSAP and 
 * Automatic content detection
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+New Export/Import feature lets you backup settings and seamlessly migrate between sites or upgrade to Pro without losing your configuration.
 
 = 1.0.0 =
 Initial release of Context-Aware Animation plugin.

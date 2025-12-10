@@ -3,7 +3,7 @@
  * Plugin Name: Logo Collision
  * Plugin URI: https://wordpress.org/plugins/logo-collision/
  * Description: Apply context-aware scroll animations to your WordPress header logo when it would collide with scrolling content.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: wpmitch
  * Author URI: https://profiles.wordpress.org/wpmitch/
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CAA_VERSION', '1.0.0');
+define('CAA_VERSION', '1.0.1');
 define('CAA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CAA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LOGO_COLLISION_PRO', true); // Build script sets to false for Free version
@@ -91,6 +91,7 @@ class Context_Aware_Animation {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_init', array($this, 'maybe_migrate_legacy_settings'));
         add_action('admin_init', array($this, 'ensure_instance_exists'));
+        add_action('admin_init', array($this, 'handle_settings_export'));
         add_action('wp_ajax_caa_search_posts', array($this, 'ajax_search_posts'));
         
         // Frontend hooks
@@ -445,6 +446,117 @@ class Context_Aware_Animation {
             'logo-collision',
             array($this, 'render_settings_page')
         );
+    }
+    
+    /**
+     * Handle settings export - runs early via admin_init to send headers before any output
+     */
+    public function handle_settings_export() {
+        // Check if this is an export request
+        if (!isset($_POST['caa_export_settings'])) {
+            return;
+        }
+        
+        // Verify nonce and capabilities
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verification
+        if (!wp_verify_nonce(isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '', 'caa_export_settings_nonce')) {
+            return;
+        }
+        
+        // List of all options to export
+        $options_to_export = array(
+            // Core settings
+            'caa_logo_id',
+            'caa_selected_effect',
+            'caa_included_elements',
+            'caa_excluded_elements',
+            'caa_global_offset',
+            'caa_debug_mode',
+            
+            // Mobile settings
+            'caa_disable_mobile',
+            'caa_mobile_breakpoint',
+            
+            // Global animation settings
+            'caa_duration',
+            'caa_ease',
+            'caa_offset_start',
+            'caa_offset_end',
+            
+            // Effect 1: Scale
+            'caa_effect1_scale_down',
+            'caa_effect1_origin_x',
+            'caa_effect1_origin_y',
+            
+            // Effect 2: Blur
+            'caa_effect2_blur_amount',
+            'caa_effect2_blur_scale',
+            'caa_effect2_blur_duration',
+            
+            // Effect 4: Text Split
+            'caa_effect4_text_x_range',
+            'caa_effect4_text_y_range',
+            'caa_effect4_stagger_amount',
+            
+            // Effect 5: Character Shuffle
+            'caa_effect5_shuffle_iterations',
+            'caa_effect5_shuffle_duration',
+            'caa_effect5_char_delay',
+            
+            // Effect 6: Rotation
+            'caa_effect6_rotation',
+            'caa_effect6_x_percent',
+            'caa_effect6_origin_x',
+            'caa_effect6_origin_y',
+            
+            // Effect 7: Move Away
+            'caa_effect7_move_distance',
+            
+            // Pro Version: Effect mappings
+            'caa_pro_effect_mappings',
+            
+            // Pro Version: Filtering settings
+            'caa_pro_enable_filtering',
+            'caa_pro_filter_mode',
+            'caa_pro_selected_post_types',
+            'caa_pro_include_pages',
+            'caa_pro_include_posts',
+            'caa_pro_selected_items',
+            
+            // Instances (Pro feature but structure exists in both)
+            'caa_instances',
+        );
+        
+        // Collect all settings
+        $export_data = array(
+            'plugin' => 'logo-collision',
+            'version' => CAA_VERSION,
+            'exported_at' => gmdate('c'),
+            'is_pro' => defined('LOGO_COLLISION_PRO') && LOGO_COLLISION_PRO,
+            'settings' => array(),
+        );
+        
+        foreach ($options_to_export as $option_name) {
+            $value = get_option($option_name);
+            if ($value !== false) {
+                $export_data['settings'][$option_name] = $value;
+            }
+        }
+        
+        // Send JSON file download
+        $filename = 'logo-collision-settings-' . gmdate('Y-m-d') . '.json';
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON export, headers already set
+        echo wp_json_encode($export_data, JSON_PRETTY_PRINT);
+        exit;
     }
     
     /**

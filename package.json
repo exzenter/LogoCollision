@@ -1,6 +1,6 @@
 {
   "name": "logo-collision",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build system for Logo Collision Free and Pro versions",
   "scripts": {
     "build": "node build/build.js",

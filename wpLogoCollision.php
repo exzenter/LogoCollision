@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Context-Aware Animation
- * Plugin URI: https://wordpress.org/plugins/context-aware-animation/
+ * Plugin Name: WP Logo Collision
+ * Plugin URI: https://wordpress.org/plugins/wpLogoCollision/
  * Description: Apply context-aware scroll animations to your WordPress header logo when it would collide with scrolling content.
  * Version: 1.0.0
  * Author: wpmitch
  * Author URI: https://profiles.wordpress.org/wpmitch/
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: context-aware-animation
+ * Text Domain: wpLogoCollision
  */
 
 // Exit if accessed directly
@@ -52,9 +52,6 @@ class Context_Aware_Animation {
      * Initialize hooks
      */
     private function init_hooks() {
-        // Load text domain for translations
-        add_action('init', array($this, 'load_textdomain'));
-        
         // Admin hooks
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
@@ -62,17 +59,6 @@ class Context_Aware_Animation {
         // Frontend hooks
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_filter('script_loader_tag', array($this, 'add_module_type'), 10, 3);
-    }
-    
-    /**
-     * Load plugin text domain for translations
-     */
-    public function load_textdomain() {
-        load_plugin_textdomain(
-            'context-aware-animation',
-            false,
-            dirname(plugin_basename(__FILE__)) . '/languages'
-        );
     }
     
     /**
@@ -91,10 +77,10 @@ class Context_Aware_Animation {
      */
     public function add_settings_page() {
         add_options_page(
-            __('Context-Aware Animation Settings', 'context-aware-animation'),
-            __('Context-Aware Animation', 'context-aware-animation'),
+            __('Context-Aware Animation Settings', 'wpLogoCollision'),
+            __('Context-Aware Animation', 'wpLogoCollision'),
             'manage_options',
-            'context-aware-animation',
+            'wpLogoCollision',
             array($this, 'render_settings_page')
         );
     }

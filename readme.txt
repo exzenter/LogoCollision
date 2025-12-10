@@ -1,5 +1,5 @@
-=== Context-Aware Animation ===
-Contributors: wpmitch
+=== WP Logo Collision ===
+Contributors: wpmitch - exzent.de
 Tags: animation, scroll, gsap, header, logo
 Requires at least: 5.0
 Tested up to: 6.9

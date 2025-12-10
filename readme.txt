@@ -1,4 +1,4 @@
-=== WP Logo Collision ===
+=== Logo Collision ===
 Contributors: wpmitch - exzent.de
 Tags: animation, scroll, gsap, header, logo
 Requires at least: 5.0
@@ -69,6 +69,10 @@ Enter comma-separated CSS selectors in the "Excluded Elements" field. For exampl
 = Does this work with all themes? =
 
 The plugin automatically detects common WordPress content areas. If your theme uses non-standard selectors, you may need to add custom CSS or modify the plugin's content detection.
+
+= Does this plugin slow down my theme? =
+
+No, this plugin does not slow down your theme. The required libraries (GSAP and ScrollTrigger) are only loaded if the effect is actually in use on the current page. These libraries are tiny and optimized for performance. A sample page with all effects enabled achieves a perfect 100 performance score on Google Lighthouse.
 
 == Screenshots ==
 

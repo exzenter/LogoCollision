@@ -52,8 +52,29 @@ function caa_sanitize_ease($value) {
     return in_array($value, $valid_eases, true) ? $value : 'power4';
 }
 
-// Handle form submission
-if (isset($_POST['submit']) && check_admin_referer('caa_settings_nonce')) {
+// Handle Pro Version form submission
+if (isset($_POST['caa_save_mappings']) && check_admin_referer('caa_pro_settings_nonce')) {
+    $mappings = array();
+    if (isset($_POST['caa_mappings']) && is_array($_POST['caa_mappings'])) {
+        foreach ($_POST['caa_mappings'] as $mapping) {
+            $selector = isset($mapping['selector']) ? sanitize_text_field(wp_unslash($mapping['selector'])) : '';
+            $effect = isset($mapping['effect']) ? caa_sanitize_effect(sanitize_text_field(wp_unslash($mapping['effect']))) : '1';
+            
+            // Only save non-empty selectors
+            if (!empty($selector)) {
+                $mappings[] = array(
+                    'selector' => $selector,
+                    'effect' => $effect
+                );
+            }
+        }
+    }
+    update_option('caa_pro_effect_mappings', $mappings);
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Mappings saved.', 'logo-collision') . '</p></div>';
+}
+
+// Handle General Settings form submission
+if (isset($_POST['caa_save_settings']) && check_admin_referer('caa_settings_nonce')) {
     // Core settings with isset() checks and proper sanitization
     update_option('caa_logo_id', isset($_POST['caa_logo_id']) ? sanitize_text_field(wp_unslash($_POST['caa_logo_id'])) : '');
     update_option('caa_selected_effect', isset($_POST['caa_selected_effect']) ? caa_sanitize_effect(sanitize_text_field(wp_unslash($_POST['caa_selected_effect']))) : '1');
@@ -94,7 +115,7 @@ if (isset($_POST['submit']) && check_admin_referer('caa_settings_nonce')) {
     update_option('caa_effect6_origin_x', isset($_POST['caa_effect6_origin_x']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_effect6_origin_x']))) : '0');
     update_option('caa_effect6_origin_y', isset($_POST['caa_effect6_origin_y']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_effect6_origin_y']))) : '100');
     
-    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved.', 'wpLogoCollision') . '</p></div>';
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved.', 'logo-collision') . '</p></div>';
 }
 
 // Get current settings
@@ -154,6 +175,18 @@ wp_enqueue_script(
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     
+    <!-- Tab Navigation -->
+    <nav class="nav-tab-wrapper caa-tabs">
+        <a href="#general-settings" class="nav-tab nav-tab-active" data-tab="general-settings">
+            <?php esc_html_e('General Settings', 'logo-collision'); ?>
+        </a>
+        <a href="#pro-version" class="nav-tab" data-tab="pro-version">
+            <?php esc_html_e('Pro Version', 'logo-collision'); ?>
+        </a>
+    </nav>
+    
+    <!-- General Settings Tab -->
+    <div id="general-settings" class="caa-tab-content caa-tab-active">
     <form method="post" action="">
         <?php wp_nonce_field('caa_settings_nonce'); ?>
         
@@ -161,7 +194,7 @@ wp_enqueue_script(
             <tbody>
                 <tr>
                     <th scope="row">
-                        <label for="caa_logo_id"><?php esc_html_e('Header Logo ID', 'wpLogoCollision'); ?></label>
+                        <label for="caa_logo_id"><?php esc_html_e('Header Logo ID', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <input 
@@ -173,20 +206,20 @@ wp_enqueue_script(
                             placeholder="#site-logo or .logo"
                         />
                         <p class="description">
-                            <?php esc_html_e('Enter the CSS selector for your header logo (e.g., #site-logo, .logo, or #header-logo).', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Enter the CSS selector for your header logo (e.g., #site-logo, .logo, or #header-logo).', 'logo-collision'); ?>
                         </p>
                     </td>
                 </tr>
                 
                 <tr>
                     <th scope="row">
-                        <label><?php esc_html_e('Global Animation Settings', 'wpLogoCollision'); ?></label>
+                        <label><?php esc_html_e('Global Animation Settings', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <table class="form-table" style="margin-top: 0;">
                             <tr>
                                 <th scope="row" style="width: 200px;">
-                                    <label for="caa_duration"><?php esc_html_e('Animation Duration', 'wpLogoCollision'); ?></label>
+                                    <label for="caa_duration"><?php esc_html_e('Animation Duration', 'logo-collision'); ?></label>
                                 </th>
                                 <td>
                                     <input 
@@ -201,13 +234,13 @@ wp_enqueue_script(
                                     />
                                     <span>s</span>
                                     <p class="description">
-                                        <?php esc_html_e('Duration of the animation in seconds (0.1 - 2.0).', 'wpLogoCollision'); ?>
+                                        <?php esc_html_e('Duration of the animation in seconds (0.1 - 2.0).', 'logo-collision'); ?>
                                     </p>
                                 </td>
                             </tr>
                             <tr>
                                 <th scope="row">
-                                    <label for="caa_ease"><?php esc_html_e('Easing Type', 'wpLogoCollision'); ?></label>
+                                    <label for="caa_ease"><?php esc_html_e('Easing Type', 'logo-collision'); ?></label>
                                 </th>
                                 <td>
                                     <select id="caa_ease" name="caa_ease">
@@ -223,13 +256,13 @@ wp_enqueue_script(
                                         <option value="none" <?php selected($ease, 'none'); ?>>None</option>
                                     </select>
                                     <p class="description">
-                                        <?php esc_html_e('Easing function for the animation.', 'wpLogoCollision'); ?>
+                                        <?php esc_html_e('Easing function for the animation.', 'logo-collision'); ?>
                                     </p>
                                 </td>
                             </tr>
                             <tr>
                                 <th scope="row">
-                                    <label for="caa_offset_start"><?php esc_html_e('Scroll Trigger Start Offset', 'wpLogoCollision'); ?></label>
+                                    <label for="caa_offset_start"><?php esc_html_e('Scroll Trigger Start Offset', 'logo-collision'); ?></label>
                                 </th>
                                 <td>
                                     <input 
@@ -242,13 +275,13 @@ wp_enqueue_script(
                                     />
                                     <span>px</span>
                                     <p class="description">
-                                        <?php esc_html_e('Offset in pixels for when the animation starts. Use negative values to trigger earlier, positive values to trigger later.', 'wpLogoCollision'); ?>
+                                        <?php esc_html_e('Offset in pixels for when the animation starts. Use negative values to trigger earlier, positive values to trigger later.', 'logo-collision'); ?>
                                     </p>
                                 </td>
                             </tr>
                             <tr>
                                 <th scope="row">
-                                    <label for="caa_offset_end"><?php esc_html_e('Scroll Trigger End Offset', 'wpLogoCollision'); ?></label>
+                                    <label for="caa_offset_end"><?php esc_html_e('Scroll Trigger End Offset', 'logo-collision'); ?></label>
                                 </th>
                                 <td>
                                     <input 
@@ -261,7 +294,7 @@ wp_enqueue_script(
                                     />
                                     <span>px</span>
                                     <p class="description">
-                                        <?php esc_html_e('Offset in pixels for when the animation ends. Use negative values to trigger earlier, positive values to trigger later.', 'wpLogoCollision'); ?>
+                                        <?php esc_html_e('Offset in pixels for when the animation ends. Use negative values to trigger earlier, positive values to trigger later.', 'logo-collision'); ?>
                                     </p>
                                 </td>
                             </tr>
@@ -271,12 +304,12 @@ wp_enqueue_script(
                 
                 <tr>
                     <th scope="row">
-                        <label for="caa_selected_effect"><?php esc_html_e('Effect Selection', 'wpLogoCollision'); ?></label>
+                        <label for="caa_selected_effect"><?php esc_html_e('Effect Selection', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <fieldset>
                             <legend class="screen-reader-text">
-                                <span><?php esc_html_e('Select Animation Effect', 'wpLogoCollision'); ?></span>
+                                <span><?php esc_html_e('Select Animation Effect', 'logo-collision'); ?></span>
                             </legend>
                             
                             <div class="caa-effect-option">
@@ -288,15 +321,15 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '1'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 1: Scale', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Scales down and hides the logo, then scales up and shows it.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 1: Scale', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Scales down and hides the logo, then scales up and shows it.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="1" <?php echo $selected_effect === '1' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <table class="form-table" style="margin-top: 10px;">
                                             <tr>
                                                 <th scope="row" style="width: 200px;">
-                                                    <label for="caa_effect1_scale_down"><?php esc_html_e('Scale Down Value', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect1_scale_down"><?php esc_html_e('Scale Down Value', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -310,13 +343,13 @@ wp_enqueue_script(
                                                         step="0.1"
                                                     />
                                                     <p class="description">
-                                                        <?php esc_html_e('Scale value when hidden (0.0 - 1.0).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Scale value when hidden (0.0 - 1.0).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect1_origin_x"><?php esc_html_e('Transform Origin X', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect1_origin_x"><?php esc_html_e('Transform Origin X', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -331,13 +364,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>%</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Horizontal transform origin (0% - 100%).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Horizontal transform origin (0% - 100%).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect1_origin_y"><?php esc_html_e('Transform Origin Y', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect1_origin_y"><?php esc_html_e('Transform Origin Y', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -352,7 +385,7 @@ wp_enqueue_script(
                                                     />
                                                     <span>%</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Vertical transform origin (0% - 100%).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Vertical transform origin (0% - 100%).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
@@ -370,15 +403,15 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '2'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 2: Blur', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Applies blur effect and scales the logo.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 2: Blur', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Applies blur effect and scales the logo.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="2" <?php echo $selected_effect === '2' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <table class="form-table" style="margin-top: 10px;">
                                             <tr>
                                                 <th scope="row" style="width: 200px;">
-                                                    <label for="caa_effect2_blur_amount"><?php esc_html_e('Blur Amount', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect2_blur_amount"><?php esc_html_e('Blur Amount', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -393,13 +426,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>px</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Intensity of the blur effect (0 - 20px).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Intensity of the blur effect (0 - 20px).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect2_blur_scale"><?php esc_html_e('Scale During Blur', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect2_blur_scale"><?php esc_html_e('Scale During Blur', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -413,13 +446,13 @@ wp_enqueue_script(
                                                         step="0.05"
                                                     />
                                                     <p class="description">
-                                                        <?php esc_html_e('Scale value applied during blur (0.5 - 1.0).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Scale value applied during blur (0.5 - 1.0).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect2_blur_duration"><?php esc_html_e('Blur Duration', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect2_blur_duration"><?php esc_html_e('Blur Duration', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -434,7 +467,7 @@ wp_enqueue_script(
                                                     />
                                                     <span>s</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Duration of the blur animation (0.1 - 1.0s).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Duration of the blur animation (0.1 - 1.0s).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
@@ -452,13 +485,13 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '3'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 3: Slide Text', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Slides text up and down.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 3: Slide Text', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Slides text up and down.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="3" <?php echo $selected_effect === '3' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <p class="description" style="margin-top: 10px; padding: 10px; background: #f0f0f1; border-left: 4px solid #2271b1;">
-                                            <?php esc_html_e('This effect uses global animation settings only. No additional configuration is required.', 'wpLogoCollision'); ?>
+                                            <?php esc_html_e('This effect uses global animation settings only. No additional configuration is required.', 'logo-collision'); ?>
                                         </p>
                                     </div>
                                 </div>
@@ -473,15 +506,15 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '4'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 4: Text Split', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Splits text into characters and scatters them.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 4: Text Split', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Splits text into characters and scatters them.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="4" <?php echo $selected_effect === '4' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <table class="form-table" style="margin-top: 10px;">
                                             <tr>
                                                 <th scope="row" style="width: 200px;">
-                                                    <label for="caa_effect4_text_x_range"><?php esc_html_e('Random X Range', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect4_text_x_range"><?php esc_html_e('Random X Range', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -496,13 +529,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>px</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Maximum horizontal displacement for characters (0 - 200px).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Maximum horizontal displacement for characters (0 - 200px).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect4_text_y_range"><?php esc_html_e('Random Y Range', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect4_text_y_range"><?php esc_html_e('Random Y Range', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -517,13 +550,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>px</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Maximum vertical displacement for characters (0 - 200px).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Maximum vertical displacement for characters (0 - 200px).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect4_stagger_amount"><?php esc_html_e('Stagger Amount', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect4_stagger_amount"><?php esc_html_e('Stagger Amount', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -538,7 +571,7 @@ wp_enqueue_script(
                                                     />
                                                     <span>s</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Delay between each character\'s animation (0 - 0.5s).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Delay between each character\'s animation (0 - 0.5s).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
@@ -556,15 +589,15 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '5'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 5: Character Shuffle', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Shuffles characters before revealing the original text.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 5: Character Shuffle', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Shuffles characters before revealing the original text.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="5" <?php echo $selected_effect === '5' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <table class="form-table" style="margin-top: 10px;">
                                             <tr>
                                                 <th scope="row" style="width: 200px;">
-                                                    <label for="caa_effect5_shuffle_iterations"><?php esc_html_e('Shuffle Iterations', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect5_shuffle_iterations"><?php esc_html_e('Shuffle Iterations', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -578,13 +611,13 @@ wp_enqueue_script(
                                                         step="1"
                                                     />
                                                     <p class="description">
-                                                        <?php esc_html_e('Number of times characters shuffle before revealing (1 - 10).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Number of times characters shuffle before revealing (1 - 10).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect5_shuffle_duration"><?php esc_html_e('Shuffle Duration', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect5_shuffle_duration"><?php esc_html_e('Shuffle Duration', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -599,13 +632,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>s</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Duration of each shuffle iteration (0.01 - 0.1s).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Duration of each shuffle iteration (0.01 - 0.1s).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect5_char_delay"><?php esc_html_e('Character Delay', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect5_char_delay"><?php esc_html_e('Character Delay', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -620,7 +653,7 @@ wp_enqueue_script(
                                                     />
                                                     <span>s</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Delay between each character\'s shuffle sequence (0 - 0.2s).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Delay between each character\'s shuffle sequence (0 - 0.2s).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
@@ -638,15 +671,15 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '6'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 6: Rotation', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Rotates and moves the logo simultaneously.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 6: Rotation', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Rotates and moves the logo simultaneously.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="6" <?php echo $selected_effect === '6' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <table class="form-table" style="margin-top: 10px;">
                                             <tr>
                                                 <th scope="row" style="width: 200px;">
-                                                    <label for="caa_effect6_rotation"><?php esc_html_e('Rotation Angle', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect6_rotation"><?php esc_html_e('Rotation Angle', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -661,13 +694,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>°</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Degrees of rotation (-180° - 180°).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Degrees of rotation (-180° - 180°).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect6_x_percent"><?php esc_html_e('X Percent Offset', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect6_x_percent"><?php esc_html_e('X Percent Offset', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -682,13 +715,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>%</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Horizontal offset during rotation (-50% - 50%).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Horizontal offset during rotation (-50% - 50%).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect6_origin_x"><?php esc_html_e('Transform Origin X', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect6_origin_x"><?php esc_html_e('Transform Origin X', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -703,13 +736,13 @@ wp_enqueue_script(
                                                     />
                                                     <span>%</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Horizontal pivot point (0% - 100%).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Horizontal pivot point (0% - 100%).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">
-                                                    <label for="caa_effect6_origin_y"><?php esc_html_e('Transform Origin Y', 'wpLogoCollision'); ?></label>
+                                                    <label for="caa_effect6_origin_y"><?php esc_html_e('Transform Origin Y', 'logo-collision'); ?></label>
                                                 </th>
                                                 <td>
                                                     <input 
@@ -724,7 +757,7 @@ wp_enqueue_script(
                                                     />
                                                     <span>%</span>
                                                     <p class="description">
-                                                        <?php esc_html_e('Vertical pivot point (0% - 100%).', 'wpLogoCollision'); ?>
+                                                        <?php esc_html_e('Vertical pivot point (0% - 100%).', 'logo-collision'); ?>
                                                     </p>
                                                 </td>
                                             </tr>
@@ -742,13 +775,13 @@ wp_enqueue_script(
                                         class="caa-effect-radio"
                                         <?php checked($selected_effect, '7'); ?>
                                     />
-                                    <strong><?php esc_html_e('Effect 7: Move Away', 'wpLogoCollision'); ?></strong>
-                                    <span class="description"><?php esc_html_e(' - Moves the logo horizontally off-screen.', 'wpLogoCollision'); ?></span>
+                                    <strong><?php esc_html_e('Effect 7: Move Away', 'logo-collision'); ?></strong>
+                                    <span class="description"><?php esc_html_e(' - Moves the logo horizontally off-screen.', 'logo-collision'); ?></span>
                                 </label>
                                 <div class="caa-effect-accordion" data-effect="7" <?php echo $selected_effect === '7' ? 'style="display: block;"' : ''; ?>>
                                     <div class="caa-accordion-content">
                                         <p class="description" style="margin-top: 10px; padding: 10px; background: #f0f0f1; border-left: 4px solid #2271b1;">
-                                            <?php esc_html_e('This effect uses global animation settings only. No additional configuration is required.', 'wpLogoCollision'); ?>
+                                            <?php esc_html_e('This effect uses global animation settings only. No additional configuration is required.', 'logo-collision'); ?>
                                         </p>
                                     </div>
                                 </div>
@@ -759,7 +792,7 @@ wp_enqueue_script(
                 
                 <tr>
                     <th scope="row">
-                        <label for="caa_included_elements"><?php esc_html_e('Include Elements', 'wpLogoCollision'); ?></label>
+                        <label for="caa_included_elements"><?php esc_html_e('Include Elements', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <textarea 
@@ -770,16 +803,16 @@ wp_enqueue_script(
                             placeholder="#main-content, .entry-content, article"
                         ><?php echo esc_textarea($included_elements); ?></textarea>
                         <p class="description">
-                            <?php esc_html_e('Enter CSS selectors (comma-separated) for elements that should trigger the animation. If left empty, the plugin will auto-detect common content areas.', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Enter CSS selectors (comma-separated) for elements that should trigger the animation. If left empty, the plugin will auto-detect common content areas.', 'logo-collision'); ?>
                             <br>
-                            <?php esc_html_e('Example: #main-content, .entry-content, article, .post-content', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Example: #main-content, .entry-content, article, .post-content', 'logo-collision'); ?>
                         </p>
                     </td>
                 </tr>
                 
                 <tr>
                     <th scope="row">
-                        <label for="caa_excluded_elements"><?php esc_html_e('Excluded Elements', 'wpLogoCollision'); ?></label>
+                        <label for="caa_excluded_elements"><?php esc_html_e('Excluded Elements', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <textarea 
@@ -790,16 +823,16 @@ wp_enqueue_script(
                             placeholder="#sidebar, .widget, .navigation"
                         ><?php echo esc_textarea($excluded_elements); ?></textarea>
                         <p class="description">
-                            <?php esc_html_e('Enter CSS selectors (comma-separated) for elements that should be excluded from collision detection. These elements will not trigger the animation.', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Enter CSS selectors (comma-separated) for elements that should be excluded from collision detection. These elements will not trigger the animation.', 'logo-collision'); ?>
                             <br>
-                            <?php esc_html_e('Example: #sidebar, .widget, .navigation, footer', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Example: #sidebar, .widget, .navigation, footer', 'logo-collision'); ?>
                         </p>
                     </td>
                 </tr>
                 
                 <tr>
                     <th scope="row">
-                        <label for="caa_global_offset"><?php esc_html_e('Global Offset', 'wpLogoCollision'); ?></label>
+                        <label for="caa_global_offset"><?php esc_html_e('Global Offset', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <input 
@@ -813,16 +846,16 @@ wp_enqueue_script(
                         />
                         <span>px</span>
                         <p class="description">
-                            <?php esc_html_e('Global offset in pixels to adjust when the effect is triggered. Use positive values to trigger earlier, negative values to trigger later. This offset is applied to both the start and end positions of the ScrollTrigger.', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Global offset in pixels to adjust when the effect is triggered. Use positive values to trigger earlier, negative values to trigger later. This offset is applied to both the start and end positions of the ScrollTrigger.', 'logo-collision'); ?>
                             <br>
-                            <?php esc_html_e('Example: -50 (triggers 50px later), +30 (triggers 30px earlier)', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Example: -50 (triggers 50px later), +30 (triggers 30px earlier)', 'logo-collision'); ?>
                         </p>
                     </td>
                 </tr>
                 
                 <tr>
                     <th scope="row">
-                        <label for="caa_debug_mode"><?php esc_html_e('Debug Mode', 'wpLogoCollision'); ?></label>
+                        <label for="caa_debug_mode"><?php esc_html_e('Debug Mode', 'logo-collision'); ?></label>
                     </th>
                     <td>
                         <label>
@@ -833,26 +866,116 @@ wp_enqueue_script(
                                 value="1"
                                 <?php checked($debug_mode, '1'); ?>
                             />
-                            <?php esc_html_e('Enable debug console output', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('Enable debug console output', 'logo-collision'); ?>
                         </label>
                         <p class="description">
-                            <?php esc_html_e('When enabled, detailed debugging information will be logged to the browser console. Useful for troubleshooting and understanding how the plugin detects and processes elements.', 'wpLogoCollision'); ?>
+                            <?php esc_html_e('When enabled, detailed debugging information will be logged to the browser console. Useful for troubleshooting and understanding how the plugin detects and processes elements.', 'logo-collision'); ?>
                         </p>
                     </td>
                 </tr>
             </tbody>
         </table>
         
-        <?php submit_button(); ?>
+        <?php submit_button(__('Save Changes', 'logo-collision'), 'primary', 'caa_save_settings'); ?>
     </form>
+    </div><!-- End General Settings Tab -->
+    
+    <!-- Pro Version Tab -->
+    <div id="pro-version" class="caa-tab-content">
+        <form method="post" action="">
+            <?php wp_nonce_field('caa_pro_settings_nonce'); ?>
+            
+            <div class="caa-pro-header">
+                <h2><?php esc_html_e('Element Effect Mappings', 'logo-collision'); ?></h2>
+                <p class="description">
+                    <?php esc_html_e('Map specific elements to different effects. When the logo collides with these elements, the mapped effect will be used instead of the global default.', 'logo-collision'); ?>
+                </p>
+            </div>
+            
+            <div class="caa-mappings-container">
+                <div class="caa-mappings-header">
+                    <span class="caa-mapping-col-selector"><?php esc_html_e('Element Selector', 'logo-collision'); ?></span>
+                    <span class="caa-mapping-col-effect"><?php esc_html_e('Effect', 'logo-collision'); ?></span>
+                    <span class="caa-mapping-col-actions"><?php esc_html_e('Actions', 'logo-collision'); ?></span>
+                </div>
+                
+                <div id="caa-mappings-list">
+                    <?php
+                    $effect_mappings = get_option('caa_pro_effect_mappings', array());
+                    if (empty($effect_mappings)) {
+                        $effect_mappings = array(array('selector' => '', 'effect' => '1'));
+                    }
+                    foreach ($effect_mappings as $index => $mapping) :
+                        $selector_value = isset($mapping['selector']) ? $mapping['selector'] : '';
+                        $effect_value = isset($mapping['effect']) ? $mapping['effect'] : '1';
+                    ?>
+                    <div class="caa-mapping-row">
+                        <div class="caa-mapping-col-selector">
+                            <input 
+                                type="text" 
+                                name="caa_mappings[<?php echo esc_attr($index); ?>][selector]" 
+                                value="<?php echo esc_attr($selector_value); ?>" 
+                                class="regular-text"
+                                placeholder="#element-id or .class-name"
+                            />
+                        </div>
+                        <div class="caa-mapping-col-effect">
+                            <select name="caa_mappings[<?php echo esc_attr($index); ?>][effect]">
+                                <option value="1" <?php selected($effect_value, '1'); ?>><?php esc_html_e('Effect 1: Scale', 'logo-collision'); ?></option>
+                                <option value="2" <?php selected($effect_value, '2'); ?>><?php esc_html_e('Effect 2: Blur', 'logo-collision'); ?></option>
+                                <option value="3" <?php selected($effect_value, '3'); ?>><?php esc_html_e('Effect 3: Slide Text', 'logo-collision'); ?></option>
+                                <option value="4" <?php selected($effect_value, '4'); ?>><?php esc_html_e('Effect 4: Text Split', 'logo-collision'); ?></option>
+                                <option value="5" <?php selected($effect_value, '5'); ?>><?php esc_html_e('Effect 5: Character Shuffle', 'logo-collision'); ?></option>
+                                <option value="6" <?php selected($effect_value, '6'); ?>><?php esc_html_e('Effect 6: Rotation', 'logo-collision'); ?></option>
+                                <option value="7" <?php selected($effect_value, '7'); ?>><?php esc_html_e('Effect 7: Move Away', 'logo-collision'); ?></option>
+                            </select>
+                        </div>
+                        <div class="caa-mapping-col-actions">
+                            <button type="button" class="button caa-remove-mapping" title="<?php esc_attr_e('Remove Mapping', 'logo-collision'); ?>">
+                                <span class="dashicons dashicons-trash"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                
+                <div class="caa-mappings-footer">
+                    <button type="button" id="caa-add-mapping" class="button button-secondary">
+                        <span class="dashicons dashicons-plus-alt2"></span>
+                        <?php esc_html_e('Add New Mapping', 'logo-collision'); ?>
+                    </button>
+                </div>
+            </div>
+            
+            <?php submit_button(__('Save Mappings', 'logo-collision'), 'primary', 'caa_save_mappings'); ?>
+        </form>
+        
+        <div class="caa-info-box">
+            <h2><?php esc_html_e('How Element Mappings Work', 'logo-collision'); ?></h2>
+            <p>
+                <?php esc_html_e('Element mappings allow you to apply different effects to specific sections of your page.', 'logo-collision'); ?>
+            </p>
+            <p>
+                <?php esc_html_e('For example, you might want:', 'logo-collision'); ?>
+            </p>
+            <ul>
+                <li><?php esc_html_e('The logo to scale down when passing your hero section', 'logo-collision'); ?></li>
+                <li><?php esc_html_e('The logo to blur when passing your portfolio section', 'logo-collision'); ?></li>
+                <li><?php esc_html_e('The logo to rotate when passing your testimonials', 'logo-collision'); ?></li>
+            </ul>
+            <p>
+                <?php esc_html_e('Enter a CSS selector (ID or class) and choose which effect to apply. The element must also be included in the "Include Elements" setting on the General Settings tab.', 'logo-collision'); ?>
+            </p>
+        </div>
+    </div><!-- End Pro Version Tab -->
     
     <div class="caa-info-box">
-        <h2><?php esc_html_e('How It Works', 'wpLogoCollision'); ?></h2>
+        <h2><?php esc_html_e('How It Works', 'logo-collision'); ?></h2>
         <p>
-            <?php esc_html_e('This plugin detects when your header logo would collide with scrolling content and applies the selected animation effect to move it out of the way.', 'wpLogoCollision'); ?>
+            <?php esc_html_e('This plugin detects when your header logo would collide with scrolling content and applies the selected animation effect to move it out of the way.', 'logo-collision'); ?>
         </p>
         <p>
-            <?php esc_html_e('The plugin automatically detects common WordPress content areas such as:', 'wpLogoCollision'); ?>
+            <?php esc_html_e('The plugin automatically detects common WordPress content areas such as:', 'logo-collision'); ?>
         </p>
         <ul>
             <li><code>.entry-content</code></li>
@@ -862,10 +985,10 @@ wp_enqueue_script(
             <li><code>article</code></li>
         </ul>
         <p>
-            <?php esc_html_e('Use the "Include Elements" field to specify which elements should trigger the animation. If left empty, the plugin will auto-detect common content areas.', 'wpLogoCollision'); ?>
+            <?php esc_html_e('Use the "Include Elements" field to specify which elements should trigger the animation. If left empty, the plugin will auto-detect common content areas.', 'logo-collision'); ?>
         </p>
         <p>
-            <?php esc_html_e('Use the "Excluded Elements" field to prevent specific elements from triggering the animation.', 'wpLogoCollision'); ?>
+            <?php esc_html_e('Use the "Excluded Elements" field to prevent specific elements from triggering the animation.', 'logo-collision'); ?>
         </p>
     </div>
 </div>

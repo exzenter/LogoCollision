@@ -21,6 +21,9 @@ const defaultAnimationProps = {
   // Parse offset settings from WordPress (allow negative values)
   const offsetStart = parseInt(settings.offsetStart) || 30;
   const offsetEnd = parseInt(settings.offsetEnd) || 10;
+  
+  // Parse effect mappings from Pro Version settings
+  const effectMappings = Array.isArray(settings.effectMappings) ? settings.effectMappings : [];
 
   // Debug logging function
   const debug = {
@@ -244,8 +247,8 @@ const defaultAnimationProps = {
     throw new Error('SplitType library is not available. It should be loaded synchronously at page load. Ensure the selected effect requires text splitting and SplitType is properly enqueued.');
   }
 
-  // Build effect functions based on selected effect
-  function buildEffect() {
+  // Build effect functions based on effect number (allows per-element effects)
+  function buildEffect(effectNumber = selectedEffect) {
     // Merge WordPress settings with defaults
     const animationProps = {
       duration: parseFloat(settings.duration) || defaultAnimationProps.duration,
@@ -256,7 +259,7 @@ const defaultAnimationProps = {
     const effectOffsetStart = offsetStart;
     const effectOffsetEnd = offsetEnd;
     
-    switch (selectedEffect) {
+    switch (effectNumber) {
       case 1: // Scale
       const effect1Settings = {
         scaleDown: settings.effect1ScaleDown !== undefined && settings.effect1ScaleDown !== '' ? parseFloat(settings.effect1ScaleDown) : 0,
@@ -583,31 +586,52 @@ const defaultAnimationProps = {
     }
   }
 
-  // Get the effect configuration
+  // Get the default effect configuration
   debug.group('Effect Configuration');
-  debug.log('Building effect for selected effect:', selectedEffect);
-  const effect = buildEffect();
+  debug.log('Building default effect for selected effect:', selectedEffect);
+  const defaultEffect = buildEffect(selectedEffect);
 
-  if (!effect) {
+  if (!defaultEffect) {
     console.warn(`Context-Aware Animation: Invalid effect selected: ${selectedEffect}`);
     debug.error('Invalid effect selected:', selectedEffect);
     debug.groupEnd();
     return;
   }
 
-  debug.log('Effect built successfully:', {
-    offsetStartAmount: effect.offsetStartAmount,
-    offsetEndAmount: effect.offsetEndAmount,
-    hasOnEnter: typeof effect.onEnter === 'function',
-    hasOnLeave: typeof effect.onLeave === 'function'
+  debug.log('Default effect built successfully:', {
+    offsetStartAmount: defaultEffect.offsetStartAmount,
+    offsetEndAmount: defaultEffect.offsetEndAmount,
+    hasOnEnter: typeof defaultEffect.onEnter === 'function',
+    hasOnLeave: typeof defaultEffect.onLeave === 'function'
   });
+  
+  // Log effect mappings
+  debug.log('Effect mappings:', effectMappings);
   debug.groupEnd();
 
   // Store ScrollTrigger instances for cleanup
   let scrollTriggerInstances = [];
   
-  // Reference counter to track active triggers (prevents flickering with adjacent triggers)
-  let activeTriggerCount = 0;
+  // Track which effect is currently active (for smooth transitions between different effects)
+  let currentActiveEffect = null;
+  let activeTriggersMap = new Map(); // Map to track which triggers are active and their effects
+
+  // Helper function to check if an element matches a mapping selector
+  function getEffectForElement(element) {
+    for (const mapping of effectMappings) {
+      if (mapping.selector && mapping.effect) {
+        try {
+          if (element.matches(mapping.selector)) {
+            debug.log('Element matches mapping:', mapping.selector, '-> Effect', mapping.effect);
+            return parseInt(mapping.effect);
+          }
+        } catch (e) {
+          debug.warn('Invalid selector in mapping:', mapping.selector);
+        }
+      }
+    }
+    return null; // No mapping found, use default
+  }
 
   // Function to create ScrollTriggers for each content block
   function createScrollTriggers() {
@@ -621,8 +645,9 @@ const defaultAnimationProps = {
     }
     scrollTriggerInstances = [];
     
-    // Reset active trigger count when recreating triggers
-    activeTriggerCount = 0;
+    // Reset tracking when recreating triggers
+    currentActiveEffect = null;
+    activeTriggersMap.clear();
     
     if (contentBlocks.length === 0) {
       console.warn('Context-Aware Animation: No content blocks found.');
@@ -634,17 +659,45 @@ const defaultAnimationProps = {
     // Calculate logo offset once globally for all triggers
     const elementOffsetTop = getElementTopOffset(logoElement);
     
-    contentBlocks.forEach((block, index) => {
+    // Pre-build effects for each content block and cache them
+    const blockEffects = contentBlocks.map((block, index) => {
+      const mappedEffectNumber = getEffectForElement(block);
+      const effectNumber = mappedEffectNumber !== null ? mappedEffectNumber : selectedEffect;
+      const effect = buildEffect(effectNumber);
+      
+      debug.log(`Block ${index + 1} effect:`, {
+        block,
+        mappedEffect: mappedEffectNumber,
+        usedEffect: effectNumber,
+        isDefault: mappedEffectNumber === null
+      });
+      
+      return {
+        block,
+        effect,
+        effectNumber
+      };
+    });
+    
+    blockEffects.forEach(({ block, effect, effectNumber }, index) => {
+      if (!effect) {
+        debug.warn(`Skipping block ${index + 1} - invalid effect`);
+        return;
+      }
+      
       const startOffset = elementOffsetTop + effect.offsetStartAmount + globalOffset;
       const endOffset = elementOffsetTop - effect.offsetEndAmount + globalOffset;
 
       debug.log(`Creating ScrollTrigger ${index + 1}/${contentBlocks.length}`, {
         block,
+        effectNumber,
         logoOffsetTop: elementOffsetTop,
         globalOffset,
         start: `top ${startOffset}px`,
         end: `bottom ${endOffset}px`
       });
+
+      const triggerId = `trigger_${index}`;
 
       const trigger = ScrollTrigger.create({
         trigger: block,
@@ -652,57 +705,97 @@ const defaultAnimationProps = {
         end: () => `bottom ${elementOffsetTop - effect.offsetEndAmount + globalOffset}px`,
 
         onEnter: () => {
-          debug.log('ScrollTrigger: onEnter', block, 'Active count:', activeTriggerCount);
-          activeTriggerCount++;
-          // Only call onEnter when this is the first active trigger (count goes from 0 to 1)
-          if (activeTriggerCount === 1) {
+          debug.log('ScrollTrigger: onEnter', block, 'Effect:', effectNumber);
+          
+          // Track this trigger as active
+          activeTriggersMap.set(triggerId, { effect, effectNumber });
+          
+          // If no effect is currently active, or if we're switching to a different effect
+          if (currentActiveEffect === null) {
             debug.log('First trigger activated, calling effect.onEnter');
+            currentActiveEffect = effectNumber;
             effect.onEnter(logoElement);
+          } else if (currentActiveEffect !== effectNumber) {
+            // Different effect - transition: leave current, enter new
+            debug.log('Switching effect from', currentActiveEffect, 'to', effectNumber);
+            const previousEffect = buildEffect(currentActiveEffect);
+            if (previousEffect) {
+              previousEffect.onLeave(logoElement);
+            }
+            currentActiveEffect = effectNumber;
+            setTimeout(() => effect.onEnter(logoElement), 50); // Small delay for smooth transition
           } else {
-            debug.log('Additional trigger activated, skipping effect.onEnter (count:', activeTriggerCount + ')');
+            debug.log('Same effect already active, skipping onEnter');
           }
         },
         onLeaveBack: () => {
-          debug.log('ScrollTrigger: onLeaveBack', block, 'Active count:', activeTriggerCount);
-          activeTriggerCount--;
-          // Only call onLeave when this is the last active trigger (count goes from 1 to 0)
-          if (activeTriggerCount === 0) {
+          debug.log('ScrollTrigger: onLeaveBack', block, 'Effect:', effectNumber);
+          
+          // Remove this trigger from active map
+          activeTriggersMap.delete(triggerId);
+          
+          // Check if any triggers are still active
+          if (activeTriggersMap.size === 0) {
             debug.log('Last trigger deactivated, calling effect.onLeave');
             effect.onLeave(logoElement);
+            currentActiveEffect = null;
           } else {
-            debug.log('Trigger deactivated but others still active, skipping effect.onLeave (count:', activeTriggerCount + ')');
-          }
-          // Ensure count doesn't go negative (safety check)
-          if (activeTriggerCount < 0) {
-            debug.warn('Active trigger count went negative, resetting to 0');
-            activeTriggerCount = 0;
+            // Find the highest priority remaining active trigger
+            const remainingTriggers = Array.from(activeTriggersMap.values());
+            const nextEffect = remainingTriggers[remainingTriggers.length - 1];
+            if (nextEffect && nextEffect.effectNumber !== currentActiveEffect) {
+              debug.log('Transitioning back to effect:', nextEffect.effectNumber);
+              effect.onLeave(logoElement);
+              currentActiveEffect = nextEffect.effectNumber;
+              setTimeout(() => nextEffect.effect.onEnter(logoElement), 50);
+            }
           }
         },
         onLeave: () => {
-          debug.log('ScrollTrigger: onLeave', block, 'Active count:', activeTriggerCount);
-          activeTriggerCount--;
-          // Only call onLeave when this is the last active trigger (count goes from 1 to 0)
-          if (activeTriggerCount === 0) {
+          debug.log('ScrollTrigger: onLeave', block, 'Effect:', effectNumber);
+          
+          // Remove this trigger from active map
+          activeTriggersMap.delete(triggerId);
+          
+          // Check if any triggers are still active
+          if (activeTriggersMap.size === 0) {
             debug.log('Last trigger deactivated, calling effect.onLeave');
             effect.onLeave(logoElement);
+            currentActiveEffect = null;
           } else {
-            debug.log('Trigger deactivated but others still active, skipping effect.onLeave (count:', activeTriggerCount + ')');
-          }
-          // Ensure count doesn't go negative (safety check)
-          if (activeTriggerCount < 0) {
-            debug.warn('Active trigger count went negative, resetting to 0');
-            activeTriggerCount = 0;
+            // Find the next active trigger
+            const remainingTriggers = Array.from(activeTriggersMap.values());
+            const nextEffect = remainingTriggers[remainingTriggers.length - 1];
+            if (nextEffect && nextEffect.effectNumber !== currentActiveEffect) {
+              debug.log('Transitioning to effect:', nextEffect.effectNumber);
+              effect.onLeave(logoElement);
+              currentActiveEffect = nextEffect.effectNumber;
+              setTimeout(() => nextEffect.effect.onEnter(logoElement), 50);
+            }
           }
         },
         onEnterBack: () => {
-          debug.log('ScrollTrigger: onEnterBack', block, 'Active count:', activeTriggerCount);
-          activeTriggerCount++;
-          // Only call onEnter when this is the first active trigger (count goes from 0 to 1)
-          if (activeTriggerCount === 1) {
+          debug.log('ScrollTrigger: onEnterBack', block, 'Effect:', effectNumber);
+          
+          // Track this trigger as active
+          activeTriggersMap.set(triggerId, { effect, effectNumber });
+          
+          // If no effect is currently active, or if we're switching to a different effect
+          if (currentActiveEffect === null) {
             debug.log('First trigger activated, calling effect.onEnter');
+            currentActiveEffect = effectNumber;
             effect.onEnter(logoElement);
+          } else if (currentActiveEffect !== effectNumber) {
+            // Different effect - transition
+            debug.log('Switching effect from', currentActiveEffect, 'to', effectNumber);
+            const previousEffect = buildEffect(currentActiveEffect);
+            if (previousEffect) {
+              previousEffect.onLeave(logoElement);
+            }
+            currentActiveEffect = effectNumber;
+            setTimeout(() => effect.onEnter(logoElement), 50);
           } else {
-            debug.log('Additional trigger activated, skipping effect.onEnter (count:', activeTriggerCount + ')');
+            debug.log('Same effect already active, skipping onEnter');
           }
         }
       });

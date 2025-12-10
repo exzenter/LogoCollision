@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: WP Logo Collision
- * Plugin URI: https://wordpress.org/plugins/wpLogoCollision/
+ * Plugin Name: Logo Collision
+ * Plugin URI: https://wordpress.org/plugins/logo-collision/
  * Description: Apply context-aware scroll animations to your WordPress header logo when it would collide with scrolling content.
  * Version: 1.0.0
  * Author: wpmitch
  * Author URI: https://profiles.wordpress.org/wpmitch/
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: wpLogoCollision
+ * Text Domain: logo-collision
  */
 
 // Exit if accessed directly
@@ -67,6 +67,7 @@ class Context_Aware_Animation {
     public function add_module_type($tag, $handle, $src) {
         $module_handles = array('caa-utils', 'caa-text-splitter', 'caa-frontend');
         if (in_array($handle, $module_handles)) {
+            // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- This is a filter modifying already-enqueued scripts
             $tag = '<script type="module" src="' . esc_url($src) . '"></script>';
         }
         return $tag;
@@ -77,10 +78,10 @@ class Context_Aware_Animation {
      */
     public function add_settings_page() {
         add_options_page(
-            __('Context-Aware Animation Settings', 'wpLogoCollision'),
-            __('Context-Aware Animation', 'wpLogoCollision'),
+            __('Context-Aware Animation Settings', 'logo-collision'),
+            __('Context-Aware Animation', 'logo-collision'),
             'manage_options',
-            'wpLogoCollision',
+            'logo-collision',
             array($this, 'render_settings_page')
         );
     }
@@ -250,6 +251,13 @@ class Context_Aware_Animation {
             'sanitize_callback' => array($this, 'sanitize_percent'),
             'default' => '100'
         ));
+        
+        // Pro Version: Effect mappings
+        register_setting('caa_settings_group', 'caa_pro_effect_mappings', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_effect_mappings'),
+            'default' => array()
+        ));
     }
     
     /**
@@ -309,6 +317,32 @@ class Context_Aware_Animation {
     }
     
     /**
+     * Sanitize effect mappings array
+     */
+    public function sanitize_effect_mappings($value) {
+        if (!is_array($value)) {
+            return array();
+        }
+        
+        $sanitized = array();
+        foreach ($value as $mapping) {
+            if (isset($mapping['selector']) && isset($mapping['effect'])) {
+                $selector = sanitize_text_field($mapping['selector']);
+                $effect = $this->sanitize_effect($mapping['effect']);
+                
+                if (!empty($selector)) {
+                    $sanitized[] = array(
+                        'selector' => $selector,
+                        'effect' => $effect
+                    );
+                }
+            }
+        }
+        
+        return $sanitized;
+    }
+    
+    /**
      * Render settings page
      */
     public function render_settings_page() {
@@ -347,8 +381,15 @@ class Context_Aware_Animation {
             return;
         }
         
-        // Check if text splitting is needed (effects 4 and 5)
-        $needs_text_splitting = in_array($selected_effect, array('4', '5'));
+        // Check if text splitting is needed (effects 4 and 5) - also check mapped effects
+        $effect_mappings = get_option('caa_pro_effect_mappings', array());
+        $all_effects_used = array($selected_effect);
+        foreach ($effect_mappings as $mapping) {
+            if (!empty($mapping['effect'])) {
+                $all_effects_used[] = $mapping['effect'];
+            }
+        }
+        $needs_text_splitting = count(array_intersect($all_effects_used, array('4', '5'))) > 0;
         
         // Enqueue GSAP from local assets
         wp_enqueue_script(
@@ -420,6 +461,9 @@ class Context_Aware_Animation {
             true
         );
         
+        // Get Pro Version effect mappings
+        $effect_mappings = get_option('caa_pro_effect_mappings', array());
+        
         // Build settings array with only selected effect's settings
         // Note: wp_localize_script() handles escaping automatically - do not use esc_js()
         $settings_array = array(
@@ -433,38 +477,60 @@ class Context_Aware_Animation {
             'duration' => $duration,
             'ease' => $ease,
             'offsetStart' => $offset_start,
-            'offsetEnd' => $offset_end
+            'offsetEnd' => $offset_end,
+            // Pro Version: Effect mappings
+            'effectMappings' => $effect_mappings
         );
         
-        // Only add settings for the selected effect
-        switch ($selected_effect) {
-            case '1':
-                $settings_array['effect1ScaleDown'] = get_option('caa_effect1_scale_down', '0');
-                $settings_array['effect1OriginX'] = get_option('caa_effect1_origin_x', '0');
-                $settings_array['effect1OriginY'] = get_option('caa_effect1_origin_y', '50');
-                break;
-            case '2':
-                $settings_array['effect2BlurAmount'] = get_option('caa_effect2_blur_amount', '5');
-                $settings_array['effect2BlurScale'] = get_option('caa_effect2_blur_scale', '0.9');
-                $settings_array['effect2BlurDuration'] = get_option('caa_effect2_blur_duration', '0.2');
-                break;
-            case '4':
-                $settings_array['effect4TextXRange'] = get_option('caa_effect4_text_x_range', '50');
-                $settings_array['effect4TextYRange'] = get_option('caa_effect4_text_y_range', '40');
-                $settings_array['effect4StaggerAmount'] = get_option('caa_effect4_stagger_amount', '0.03');
-                break;
-            case '5':
-                $settings_array['effect5ShuffleIterations'] = get_option('caa_effect5_shuffle_iterations', '2');
-                $settings_array['effect5ShuffleDuration'] = get_option('caa_effect5_shuffle_duration', '0.03');
-                $settings_array['effect5CharDelay'] = get_option('caa_effect5_char_delay', '0.03');
-                break;
-            case '6':
-                $settings_array['effect6Rotation'] = get_option('caa_effect6_rotation', '-90');
-                $settings_array['effect6XPercent'] = get_option('caa_effect6_x_percent', '-5');
-                $settings_array['effect6OriginX'] = get_option('caa_effect6_origin_x', '0');
-                $settings_array['effect6OriginY'] = get_option('caa_effect6_origin_y', '100');
-                break;
-            // Effects 3 and 7 don't need additional settings
+        // Determine which effects are needed (selected effect + any mapped effects)
+        $needed_effects = array($selected_effect);
+        foreach ($effect_mappings as $mapping) {
+            if (!empty($mapping['effect']) && !in_array($mapping['effect'], $needed_effects)) {
+                $needed_effects[] = $mapping['effect'];
+            }
+        }
+        
+        // Add all effect settings that are needed (for mapped effects to work)
+        foreach ($needed_effects as $effect) {
+            switch ($effect) {
+                case '1':
+                    if (!isset($settings_array['effect1ScaleDown'])) {
+                        $settings_array['effect1ScaleDown'] = get_option('caa_effect1_scale_down', '0');
+                        $settings_array['effect1OriginX'] = get_option('caa_effect1_origin_x', '0');
+                        $settings_array['effect1OriginY'] = get_option('caa_effect1_origin_y', '50');
+                    }
+                    break;
+                case '2':
+                    if (!isset($settings_array['effect2BlurAmount'])) {
+                        $settings_array['effect2BlurAmount'] = get_option('caa_effect2_blur_amount', '5');
+                        $settings_array['effect2BlurScale'] = get_option('caa_effect2_blur_scale', '0.9');
+                        $settings_array['effect2BlurDuration'] = get_option('caa_effect2_blur_duration', '0.2');
+                    }
+                    break;
+                case '4':
+                    if (!isset($settings_array['effect4TextXRange'])) {
+                        $settings_array['effect4TextXRange'] = get_option('caa_effect4_text_x_range', '50');
+                        $settings_array['effect4TextYRange'] = get_option('caa_effect4_text_y_range', '40');
+                        $settings_array['effect4StaggerAmount'] = get_option('caa_effect4_stagger_amount', '0.03');
+                    }
+                    break;
+                case '5':
+                    if (!isset($settings_array['effect5ShuffleIterations'])) {
+                        $settings_array['effect5ShuffleIterations'] = get_option('caa_effect5_shuffle_iterations', '2');
+                        $settings_array['effect5ShuffleDuration'] = get_option('caa_effect5_shuffle_duration', '0.03');
+                        $settings_array['effect5CharDelay'] = get_option('caa_effect5_char_delay', '0.03');
+                    }
+                    break;
+                case '6':
+                    if (!isset($settings_array['effect6Rotation'])) {
+                        $settings_array['effect6Rotation'] = get_option('caa_effect6_rotation', '-90');
+                        $settings_array['effect6XPercent'] = get_option('caa_effect6_x_percent', '-5');
+                        $settings_array['effect6OriginX'] = get_option('caa_effect6_origin_x', '0');
+                        $settings_array['effect6OriginY'] = get_option('caa_effect6_origin_y', '100');
+                    }
+                    break;
+                // Effects 3 and 7 don't need additional settings
+            }
         }
         
         // Pass settings to JavaScript

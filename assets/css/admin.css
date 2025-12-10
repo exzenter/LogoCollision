@@ -151,4 +151,133 @@
     padding: 10px 15px 10px 0;
 }
 
+/* Tab Navigation Styles */
+.caa-tabs {
+    margin-bottom: 20px;
+}
+
+.caa-tabs .nav-tab {
+    cursor: pointer;
+}
+
+.caa-tab-content {
+    display: none;
+    padding-top: 20px;
+}
+
+.caa-tab-content.caa-tab-active {
+    display: block;
+}
+
+/* Pro Version Tab Styles */
+.caa-pro-header {
+    margin-bottom: 20px;
+}
+
+.caa-pro-header h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.caa-mappings-container {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    max-width: 800px;
+}
+
+.caa-mappings-header {
+    display: flex;
+    padding: 12px 15px;
+    background: #f0f0f1;
+    border-bottom: 1px solid #ccd0d4;
+    font-weight: 600;
+}
+
+.caa-mapping-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.caa-mapping-row:last-child {
+    border-bottom: none;
+}
+
+.caa-mapping-row:hover {
+    background: #f9f9f9;
+}
+
+.caa-mapping-col-selector {
+    flex: 1;
+    min-width: 200px;
+    padding-right: 15px;
+}
+
+.caa-mapping-col-effect {
+    flex: 0 0 200px;
+    padding-right: 15px;
+}
+
+.caa-mapping-col-actions {
+    flex: 0 0 60px;
+    text-align: center;
+}
+
+.caa-mapping-col-selector input {
+    width: 100%;
+}
+
+.caa-mapping-col-effect select {
+    width: 100%;
+}
+
+.caa-remove-mapping {
+    color: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.caa-remove-mapping:hover {
+    background: #b32d2e;
+    color: #fff;
+    border-color: #b32d2e;
+}
+
+.caa-remove-mapping .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.caa-mappings-footer {
+    padding: 15px;
+    background: #f9f9f9;
+    border-top: 1px solid #eee;
+}
+
+#caa-add-mapping {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#caa-add-mapping .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+
+/* Empty state */
+#caa-mappings-list:empty::before {
+    content: "No mappings configured. Click 'Add New Mapping' to get started.";
+    display: block;
+    padding: 20px 15px;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
 

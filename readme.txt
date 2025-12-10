@@ -17,7 +17,7 @@ Context-Aware Animation is a WordPress plugin that automatically detects when yo
 
 **Features:**
 
-* 7 different animation effects to choose from: Inspired by Codrops.
+* 7 different animation effects to choose from: Inspired by Codrops. MIT License applies to that Code parts.
   * Scale - Scales down and hides, then scales up and shows
   * Blur - Applies blur effect and scales
   * Slide Text - Slides text up and down

@@ -958,7 +958,7 @@ class Context_Aware_Animation {
             echo 'var s=' . $scripts_json . ',';
             echo 'c="' . esc_url($css_url) . '",';
             echo 'n=' . $needs_text_splitting_js . ',';
-            echo 'l=function(u,cb,m){var e=document.createElement("script");e.src=u;if(m)e.type="module";e.onload=cb;document.body.appendChild(e);},';
+            echo 'l=function(u,cb,m){var e=document.createElement("script");e.src=u;if(m)e.type="module";e.onload=cb;document.head.appendChild(e);},';
             echo 'lc=function(){var e=document.createElement("link");e.rel="stylesheet";e.href=c;document.head.appendChild(e);};';
             echo 'window.caaSettings=' . $settings_json . ';';
             echo 'lc();';

@@ -142,6 +142,8 @@ class Context_Aware_Animation {
             'effect6_origin_y' => '100',
             // Effect 7: Move Away
             'effect7_move_distance' => '',
+            // Event target for cah-pause/cah-resume events
+            'event_target_selector' => '',
             // Pro features per instance
             'effect_mappings' => array(),
             'enable_filtering' => '0',
@@ -352,6 +354,7 @@ class Context_Aware_Animation {
         $sanitized['logo_id'] = isset($data['logo_id']) ? sanitize_text_field($data['logo_id']) : '';
         $sanitized['included_elements'] = isset($data['included_elements']) ? sanitize_textarea_field($data['included_elements']) : '';
         $sanitized['excluded_elements'] = isset($data['excluded_elements']) ? sanitize_textarea_field($data['excluded_elements']) : '';
+        $sanitized['event_target_selector'] = isset($data['event_target_selector']) ? sanitize_text_field($data['event_target_selector']) : '';
         
         // Effect selection
         $sanitized['selected_effect'] = isset($data['selected_effect']) ? $this->sanitize_effect($data['selected_effect']) : '1';
@@ -1257,6 +1260,7 @@ class Context_Aware_Animation {
             'effect6OriginX' => $instance['effect6_origin_x'],
             'effect6OriginY' => $instance['effect6_origin_y'],
             'effect7MoveDistance' => $instance['effect7_move_distance'],
+            'eventTargetSelector' => $instance['event_target_selector'],
         );
         
         return $settings_array;

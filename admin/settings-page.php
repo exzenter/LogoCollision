@@ -318,16 +318,32 @@ if (isset($_POST['caa_save_instance']) && check_admin_referer('caa_instance_nonc
             'effect6_origin_x' => isset($_POST['caa_instance_effect6_origin_x']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_x']))) : '0',
             'effect6_origin_y' => isset($_POST['caa_instance_effect6_origin_y']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_y']))) : '100',
             'effect7_move_distance' => isset($_POST['caa_instance_effect7_move_distance']) ? caa_sanitize_move_away(sanitize_text_field(wp_unslash($_POST['caa_instance_effect7_move_distance']))) : '',
-            // Pro features per instance - effect mappings
-            'effect_mappings' => array(),
-            // Filtering settings
-            'enable_filtering' => isset($_POST['caa_instance_enable_filtering']) ? '1' : '0',
-            'filter_mode' => isset($_POST['caa_instance_filter_mode']) ? sanitize_text_field(wp_unslash($_POST['caa_instance_filter_mode'])) : 'include',
-            'selected_post_types' => array(),
-            'include_pages' => isset($_POST['caa_instance_include_pages']) ? '1' : '0',
-            'include_posts' => isset($_POST['caa_instance_include_posts']) ? '1' : '0',
-            'selected_items' => array(),
+            // Event target selector for cah-pause/cah-resume events
+            'event_target_selector' => isset($_POST['caa_instance_event_target']) ? sanitize_text_field(wp_unslash($_POST['caa_instance_event_target'])) : '',
         );
+        
+        // Preserve existing data for fields that may not be in the current POST
+        // This prevents losing data when saving from different sub-tabs
+        $existing_instance = $plugin_instance->get_logo_instance($instance_id);
+        if ($existing_instance) {
+            // Preserve effect mappings
+            $instance_data['effect_mappings'] = isset($existing_instance['effect_mappings']) ? $existing_instance['effect_mappings'] : array();
+            // Preserve filtering settings
+            $instance_data['enable_filtering'] = isset($existing_instance['enable_filtering']) ? $existing_instance['enable_filtering'] : '0';
+            $instance_data['filter_mode'] = isset($existing_instance['filter_mode']) ? $existing_instance['filter_mode'] : 'include';
+            $instance_data['selected_post_types'] = isset($existing_instance['selected_post_types']) ? $existing_instance['selected_post_types'] : array();
+            $instance_data['include_pages'] = isset($existing_instance['include_pages']) ? $existing_instance['include_pages'] : '0';
+            $instance_data['include_posts'] = isset($existing_instance['include_posts']) ? $existing_instance['include_posts'] : '0';
+            $instance_data['selected_items'] = isset($existing_instance['selected_items']) ? $existing_instance['selected_items'] : array();
+        } else {
+            $instance_data['effect_mappings'] = array();
+            $instance_data['enable_filtering'] = '0';
+            $instance_data['filter_mode'] = 'include';
+            $instance_data['selected_post_types'] = array();
+            $instance_data['include_pages'] = '0';
+            $instance_data['include_posts'] = '0';
+            $instance_data['selected_items'] = array();
+        }
         
         // Handle effect mappings for this instance
         if (isset($_POST['caa_instance_mappings']) && is_array($_POST['caa_instance_mappings'])) {
@@ -1564,6 +1580,16 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
                                 <td>
                                     <input type="text" id="caa_instance_logo_id" name="caa_instance_logo_id" value="<?php echo esc_attr($selected_instance['logo_id']); ?>" class="regular-text" placeholder="#site-logo or .logo" />
                                     <p class="description"><?php esc_html_e('CSS selector for the element to animate (e.g., #site-logo, .custom-logo).', 'logo-collision'); ?></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label for="caa_instance_event_target"><?php esc_html_e('Event Target Selector', 'logo-collision'); ?></label>
+                                </th>
+                                <td>
+                                    <?php $event_target = isset($selected_instance['event_target_selector']) ? $selected_instance['event_target_selector'] : ''; ?>
+                                    <input type="text" id="caa_instance_event_target" name="caa_instance_event_target" value="<?php echo esc_attr($event_target); ?>" class="regular-text" placeholder=".site-header (optional)" />
+                                    <p class="description"><?php esc_html_e('CSS selector for element to receive cah-pause/cah-resume events. Leave empty to use the logo element. Only fires for effects 1, 4, 5, 6.', 'logo-collision'); ?></p>
                                 </td>
                             </tr>
                             <tr>

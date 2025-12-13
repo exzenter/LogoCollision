@@ -140,7 +140,23 @@ function waitForSplitType() {
 function initInstance(instanceSettings, globalSettings) {
   const instanceId = instanceSettings.instanceId || 'default';
   const logoSelector = instanceSettings.logoId || '';
-  const selectedEffect = parseInt(instanceSettings.selectedEffect) || 1;
+
+  // Breakpoints for responsive behavior
+  const breakpoints = {
+    tablet: parseInt(globalSettings.tabletBreakpoint) || 782,
+    mobile: parseInt(globalSettings.mobileBreakpoint) || 600
+  };
+
+  // Function to get the current effect based on viewport
+  function getCurrentEffect() {
+    const viewport = getCurrentViewport(breakpoints);
+    const effectValue = getResponsiveSetting(instanceSettings, 'selectedEffect', viewport);
+    return parseInt(effectValue) || 1;
+  }
+
+  // Initial effect (will be recalculated on resize)
+  let selectedEffect = getCurrentEffect();
+
   const includedElementsStr = instanceSettings.includedElements || '';
   const excludedElementsStr = instanceSettings.excludedElements || '';
   const globalOffset = parseInt(instanceSettings.globalOffset) || 0;
@@ -1346,12 +1362,42 @@ function initInstance(instanceSettings, globalSettings) {
 
   debug.log('Instance setup complete, event listeners will be registered globally');
 
+  // Track current viewport for change detection
+  let currentViewport = getCurrentViewport(breakpoints);
+
+  // Function to handle viewport changes - recalculates effect and recreates triggers if needed
+  function handleViewportChange() {
+    const newViewport = getCurrentViewport(breakpoints);
+    if (newViewport !== currentViewport) {
+      const oldEffect = selectedEffect;
+      currentViewport = newViewport;
+      selectedEffect = getCurrentEffect();
+      debug.log('Viewport changed from', currentViewport, 'to', newViewport, '- Effect:', oldEffect, '->', selectedEffect);
+
+      // If effect changed, recreate ScrollTriggers
+      if (oldEffect !== selectedEffect) {
+        debug.log('Effect changed, recreating ScrollTriggers');
+        // Reset the logo element to clear any current animation state
+        resetElement(logoElement);
+        // Kill existing triggers before creating new ones
+        scrollTriggerInstances.forEach(instance => instance.kill());
+        scrollTriggerInstances = [];
+        currentActiveTriggerId = null;
+        activeTriggersMap.clear();
+        // Recreate with new effect
+        createScrollTriggers();
+      }
+    }
+  }
+
   // Return the instance controller
   return {
     instanceId,
     logoSelector,
     createScrollTriggers,
-    scrollTriggerInstances
+    scrollTriggerInstances,
+    handleViewportChange,
+    getCurrentEffect
   };
 }
 
@@ -1412,7 +1458,13 @@ function initInstance(instanceSettings, globalSettings) {
   });
 
   // Update position dynamically on resize (once for all instances)
+  // Also check for viewport changes to trigger dynamic effect switching
   window.addEventListener('resize', () => {
+    // Check for viewport changes first (may trigger ScrollTrigger recreation)
+    activeInstances.forEach(instance => {
+      instance.handleViewportChange();
+    });
+    // Refresh ScrollTrigger positions
     ScrollTrigger.refresh();
   });
 

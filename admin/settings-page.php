@@ -295,6 +295,8 @@ if (isset($_POST['caa_save_instance']) && check_admin_referer('caa_instance_nonc
             'enabled' => isset($_POST['caa_instance_enabled']),
             'logo_id' => isset($_POST['caa_instance_logo_id']) ? sanitize_text_field(wp_unslash($_POST['caa_instance_logo_id'])) : '',
             'selected_effect' => isset($_POST['caa_instance_effect']) ? caa_sanitize_effect(sanitize_text_field(wp_unslash($_POST['caa_instance_effect']))) : '1',
+            'selected_effect_tablet' => isset($_POST['caa_instance_effect_tablet']) && $_POST['caa_instance_effect_tablet'] !== '' ? caa_sanitize_effect(sanitize_text_field(wp_unslash($_POST['caa_instance_effect_tablet']))) : '',
+            'selected_effect_mobile' => isset($_POST['caa_instance_effect_mobile']) && $_POST['caa_instance_effect_mobile'] !== '' ? caa_sanitize_effect(sanitize_text_field(wp_unslash($_POST['caa_instance_effect_mobile']))) : '',
             'included_elements' => isset($_POST['caa_instance_included']) ? sanitize_textarea_field(wp_unslash($_POST['caa_instance_included'])) : '',
             'excluded_elements' => isset($_POST['caa_instance_excluded']) ? sanitize_textarea_field(wp_unslash($_POST['caa_instance_excluded'])) : '',
             'global_offset' => isset($_POST['caa_instance_global_offset']) ? caa_sanitize_offset(sanitize_text_field(wp_unslash($_POST['caa_instance_global_offset']))) : '0',
@@ -312,24 +314,64 @@ if (isset($_POST['caa_save_instance']) && check_admin_referer('caa_instance_nonc
             'offset_start_mobile' => isset($_POST['caa_instance_offset_start_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_offset_start_mobile'])), 'offset') : '',
             'offset_end_tablet' => isset($_POST['caa_instance_offset_end_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_offset_end_tablet'])), 'offset') : '',
             'offset_end_mobile' => isset($_POST['caa_instance_offset_end_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_offset_end_mobile'])), 'offset') : '',
-            // Effect settings
+            // Effect settings (with viewport variants)
+            // Effect 1: Scale
             'effect1_scale_down' => isset($_POST['caa_instance_effect1_scale_down']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_scale_down']))) : '0',
+            'effect1_scale_down_tablet' => isset($_POST['caa_instance_effect1_scale_down_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_scale_down_tablet'])), 'float') : '',
+            'effect1_scale_down_mobile' => isset($_POST['caa_instance_effect1_scale_down_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_scale_down_mobile'])), 'float') : '',
             'effect1_origin_x' => isset($_POST['caa_instance_effect1_origin_x']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_origin_x']))) : '0',
+            'effect1_origin_x_tablet' => isset($_POST['caa_instance_effect1_origin_x_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_origin_x_tablet'])), 'percent') : '',
+            'effect1_origin_x_mobile' => isset($_POST['caa_instance_effect1_origin_x_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_origin_x_mobile'])), 'percent') : '',
             'effect1_origin_y' => isset($_POST['caa_instance_effect1_origin_y']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_origin_y']))) : '50',
+            'effect1_origin_y_tablet' => isset($_POST['caa_instance_effect1_origin_y_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_origin_y_tablet'])), 'percent') : '',
+            'effect1_origin_y_mobile' => isset($_POST['caa_instance_effect1_origin_y_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect1_origin_y_mobile'])), 'percent') : '',
+            // Effect 2: Blur
             'effect2_blur_amount' => isset($_POST['caa_instance_effect2_blur_amount']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_amount']))) : '5',
+            'effect2_blur_amount_tablet' => isset($_POST['caa_instance_effect2_blur_amount_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_amount_tablet'])), 'float') : '',
+            'effect2_blur_amount_mobile' => isset($_POST['caa_instance_effect2_blur_amount_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_amount_mobile'])), 'float') : '',
             'effect2_blur_scale' => isset($_POST['caa_instance_effect2_blur_scale']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_scale']))) : '0.9',
+            'effect2_blur_scale_tablet' => isset($_POST['caa_instance_effect2_blur_scale_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_scale_tablet'])), 'float') : '',
+            'effect2_blur_scale_mobile' => isset($_POST['caa_instance_effect2_blur_scale_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_scale_mobile'])), 'float') : '',
             'effect2_blur_duration' => isset($_POST['caa_instance_effect2_blur_duration']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_duration']))) : '0.2',
+            'effect2_blur_duration_tablet' => isset($_POST['caa_instance_effect2_blur_duration_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_duration_tablet'])), 'float') : '',
+            'effect2_blur_duration_mobile' => isset($_POST['caa_instance_effect2_blur_duration_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect2_blur_duration_mobile'])), 'float') : '',
+            // Effect 4: Text Split
             'effect4_text_x_range' => isset($_POST['caa_instance_effect4_text_x_range']) ? caa_sanitize_offset(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_text_x_range']))) : '50',
+            'effect4_text_x_range_tablet' => isset($_POST['caa_instance_effect4_text_x_range_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_text_x_range_tablet'])), 'offset') : '',
+            'effect4_text_x_range_mobile' => isset($_POST['caa_instance_effect4_text_x_range_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_text_x_range_mobile'])), 'offset') : '',
             'effect4_text_y_range' => isset($_POST['caa_instance_effect4_text_y_range']) ? caa_sanitize_offset(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_text_y_range']))) : '40',
+            'effect4_text_y_range_tablet' => isset($_POST['caa_instance_effect4_text_y_range_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_text_y_range_tablet'])), 'offset') : '',
+            'effect4_text_y_range_mobile' => isset($_POST['caa_instance_effect4_text_y_range_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_text_y_range_mobile'])), 'offset') : '',
             'effect4_stagger_amount' => isset($_POST['caa_instance_effect4_stagger_amount']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_stagger_amount']))) : '0.03',
+            'effect4_stagger_amount_tablet' => isset($_POST['caa_instance_effect4_stagger_amount_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_stagger_amount_tablet'])), 'float') : '',
+            'effect4_stagger_amount_mobile' => isset($_POST['caa_instance_effect4_stagger_amount_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect4_stagger_amount_mobile'])), 'float') : '',
+            // Effect 5: Character Shuffle
             'effect5_shuffle_iterations' => isset($_POST['caa_instance_effect5_shuffle_iterations']) ? caa_sanitize_offset(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_shuffle_iterations']))) : '2',
+            'effect5_shuffle_iterations_tablet' => isset($_POST['caa_instance_effect5_shuffle_iterations_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_shuffle_iterations_tablet'])), 'offset') : '',
+            'effect5_shuffle_iterations_mobile' => isset($_POST['caa_instance_effect5_shuffle_iterations_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_shuffle_iterations_mobile'])), 'offset') : '',
             'effect5_shuffle_duration' => isset($_POST['caa_instance_effect5_shuffle_duration']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_shuffle_duration']))) : '0.03',
+            'effect5_shuffle_duration_tablet' => isset($_POST['caa_instance_effect5_shuffle_duration_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_shuffle_duration_tablet'])), 'float') : '',
+            'effect5_shuffle_duration_mobile' => isset($_POST['caa_instance_effect5_shuffle_duration_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_shuffle_duration_mobile'])), 'float') : '',
             'effect5_char_delay' => isset($_POST['caa_instance_effect5_char_delay']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_char_delay']))) : '0.03',
+            'effect5_char_delay_tablet' => isset($_POST['caa_instance_effect5_char_delay_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_char_delay_tablet'])), 'float') : '',
+            'effect5_char_delay_mobile' => isset($_POST['caa_instance_effect5_char_delay_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect5_char_delay_mobile'])), 'float') : '',
+            // Effect 6: Rotation
             'effect6_rotation' => isset($_POST['caa_instance_effect6_rotation']) ? caa_sanitize_offset(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_rotation']))) : '-90',
+            'effect6_rotation_tablet' => isset($_POST['caa_instance_effect6_rotation_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_rotation_tablet'])), 'offset') : '',
+            'effect6_rotation_mobile' => isset($_POST['caa_instance_effect6_rotation_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_rotation_mobile'])), 'offset') : '',
             'effect6_x_percent' => isset($_POST['caa_instance_effect6_x_percent']) ? caa_sanitize_offset(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_x_percent']))) : '-5',
+            'effect6_x_percent_tablet' => isset($_POST['caa_instance_effect6_x_percent_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_x_percent_tablet'])), 'offset') : '',
+            'effect6_x_percent_mobile' => isset($_POST['caa_instance_effect6_x_percent_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_x_percent_mobile'])), 'offset') : '',
             'effect6_origin_x' => isset($_POST['caa_instance_effect6_origin_x']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_x']))) : '0',
+            'effect6_origin_x_tablet' => isset($_POST['caa_instance_effect6_origin_x_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_x_tablet'])), 'percent') : '',
+            'effect6_origin_x_mobile' => isset($_POST['caa_instance_effect6_origin_x_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_x_mobile'])), 'percent') : '',
             'effect6_origin_y' => isset($_POST['caa_instance_effect6_origin_y']) ? caa_sanitize_percent(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_y']))) : '100',
+            'effect6_origin_y_tablet' => isset($_POST['caa_instance_effect6_origin_y_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_y_tablet'])), 'percent') : '',
+            'effect6_origin_y_mobile' => isset($_POST['caa_instance_effect6_origin_y_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect6_origin_y_mobile'])), 'percent') : '',
+            // Effect 7: Move Away
             'effect7_move_distance' => isset($_POST['caa_instance_effect7_move_distance']) ? caa_sanitize_move_away(sanitize_text_field(wp_unslash($_POST['caa_instance_effect7_move_distance']))) : '',
+            'effect7_move_distance_tablet' => isset($_POST['caa_instance_effect7_move_distance_tablet']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect7_move_distance_tablet'])), 'move_away') : '',
+            'effect7_move_distance_mobile' => isset($_POST['caa_instance_effect7_move_distance_mobile']) ? $plugin_instance->sanitize_viewport_value(sanitize_text_field(wp_unslash($_POST['caa_instance_effect7_move_distance_mobile'])), 'move_away') : '',
             // Pro features per instance - effect mappings (preserve existing if not in form)
             'effect_mappings' => ($existing_instance && !isset($_POST['caa_instance_mappings'])) ? (isset($existing_instance['effect_mappings']) ? $existing_instance['effect_mappings'] : array()) : array(),
             // Filtering settings (preserve existing if filtering form not submitted)
@@ -1680,6 +1722,51 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
                     </p>
                 </div>
                     
+                    <!-- Core Settings Grid (like Free version) -->
+                    <div class="caa-core-settings-grid">
+                        <div class="caa-core-settings-field caa-field-logo">
+                            <label for="caa_instance_logo_id"><?php esc_html_e('Logo Selector', 'logo-collision'); ?></label>
+                            <input 
+                                type="text" 
+                                id="caa_instance_logo_id" 
+                                name="caa_instance_logo_id" 
+                                value="<?php echo esc_attr($selected_instance['logo_id']); ?>" 
+                                class="regular-text"
+                                placeholder="#site-logo or .logo"
+                            />
+                            <p class="description">
+                                <?php esc_html_e('CSS selector for the element to animate.', 'logo-collision'); ?>
+                            </p>
+                        </div>
+                        <div class="caa-core-settings-field caa-field-include">
+                            <label for="caa_instance_included"><?php esc_html_e('Include Elements', 'logo-collision'); ?></label>
+                            <textarea 
+                                id="caa_instance_included" 
+                                name="caa_instance_included" 
+                                rows="3" 
+                                class="large-text code"
+                                placeholder="#main-content, .entry-content, article"
+                            ><?php echo esc_textarea($selected_instance['included_elements']); ?></textarea>
+                            <p class="description">
+                                <?php esc_html_e('CSS selectors for elements that trigger animation.', 'logo-collision'); ?>
+                            </p>
+                        </div>
+                        <div class="caa-core-settings-field caa-field-exclude">
+                            <label for="caa_instance_excluded"><?php esc_html_e('Exclude Elements', 'logo-collision'); ?></label>
+                            <textarea 
+                                id="caa_instance_excluded" 
+                                name="caa_instance_excluded" 
+                                rows="3" 
+                                class="large-text code"
+                                placeholder="#sidebar, .widget, .navigation"
+                            ><?php echo esc_textarea($selected_instance['excluded_elements']); ?></textarea>
+                            <p class="description">
+                                <?php esc_html_e('CSS selectors for elements to exclude.', 'logo-collision'); ?>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Enabled checkbox -->
                     <table class="form-table" role="presentation">
                         <tbody>
                             <tr>
@@ -1693,54 +1780,13 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
                                     </label>
                                 </td>
                             </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label for="caa_instance_logo_id"><?php esc_html_e('Logo Selector', 'logo-collision'); ?></label>
-                                </th>
-                                <td>
-                                    <input type="text" id="caa_instance_logo_id" name="caa_instance_logo_id" value="<?php echo esc_attr($selected_instance['logo_id']); ?>" class="regular-text" placeholder="#site-logo or .logo" />
-                                    <p class="description"><?php esc_html_e('CSS selector for the element to animate (e.g., #site-logo, .custom-logo).', 'logo-collision'); ?></p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label><?php esc_html_e('Default Effect', 'logo-collision'); ?></label>
-                                </th>
-                                <td>
-                                    <?php
-                                    $inst_effect = isset($selected_instance['selected_effect']) ? $selected_instance['selected_effect'] : '1';
-                                    ?>
-                                    <fieldset>
-                                        <label><input type="radio" name="caa_instance_effect" value="1" <?php checked($inst_effect, '1'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 1: Scale', 'logo-collision'); ?></label><br>
-                                        <label><input type="radio" name="caa_instance_effect" value="2" <?php checked($inst_effect, '2'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 2: Blur', 'logo-collision'); ?></label><br>
-                                        <label><input type="radio" name="caa_instance_effect" value="3" <?php checked($inst_effect, '3'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 3: Slide Text', 'logo-collision'); ?></label><br>
-                                        <label><input type="radio" name="caa_instance_effect" value="4" <?php checked($inst_effect, '4'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 4: Text Split', 'logo-collision'); ?></label><br>
-                                        <label><input type="radio" name="caa_instance_effect" value="5" <?php checked($inst_effect, '5'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 5: Character Shuffle', 'logo-collision'); ?></label><br>
-                                        <label><input type="radio" name="caa_instance_effect" value="6" <?php checked($inst_effect, '6'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 6: Rotation', 'logo-collision'); ?></label><br>
-                                        <label><input type="radio" name="caa_instance_effect" value="7" <?php checked($inst_effect, '7'); ?> class="caa-instance-effect-radio" /> <?php esc_html_e('Effect 7: Move Away', 'logo-collision'); ?></label>
-                                    </fieldset>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label for="caa_instance_included"><?php esc_html_e('Include Elements', 'logo-collision'); ?></label>
-                                </th>
-                                <td>
-                                    <textarea id="caa_instance_included" name="caa_instance_included" class="large-text" rows="2" placeholder=".content-section, .hero-section"><?php echo esc_textarea($selected_instance['included_elements']); ?></textarea>
-                                    <p class="description"><?php esc_html_e('Comma-separated CSS selectors for elements that should trigger the animation.', 'logo-collision'); ?></p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label for="caa_instance_excluded"><?php esc_html_e('Exclude Elements', 'logo-collision'); ?></label>
-                                </th>
-                                <td>
-                                    <textarea id="caa_instance_excluded" name="caa_instance_excluded" class="large-text" rows="2" placeholder=".no-animation, .skip-collision"><?php echo esc_textarea($selected_instance['excluded_elements']); ?></textarea>
-                                    <p class="description"><?php esc_html_e('Comma-separated CSS selectors for elements to exclude from triggering.', 'logo-collision'); ?></p>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
+                    
+                    <?php
+                    // Store effect value for use in Animation Settings section
+                    $inst_effect = isset($selected_instance['selected_effect']) ? $selected_instance['selected_effect'] : '1';
+                    ?>
                     
                     <h3><?php esc_html_e('Animation Settings', 'logo-collision'); ?></h3>
                     
@@ -1786,10 +1832,51 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
                     $offset_start_mobile = isset($selected_instance['offset_start_mobile']) ? $selected_instance['offset_start_mobile'] : '';
                     $offset_end_tablet = isset($selected_instance['offset_end_tablet']) ? $selected_instance['offset_end_tablet'] : '';
                     $offset_end_mobile = isset($selected_instance['offset_end_mobile']) ? $selected_instance['offset_end_mobile'] : '';
+                    // Viewport-specific effect selection
+                    $effect_tablet = isset($selected_instance['selected_effect_tablet']) ? $selected_instance['selected_effect_tablet'] : '';
+                    $effect_mobile = isset($selected_instance['selected_effect_mobile']) ? $selected_instance['selected_effect_mobile'] : '';
                     ?>
                     
                     <table class="form-table" role="presentation">
                         <tbody>
+                            <!-- Effect Selection (responsive) -->
+                            <tr class="caa-responsive-field">
+                                <th scope="row">
+                                    <label><?php esc_html_e('Effect', 'logo-collision'); ?></label>
+                                </th>
+                                <td>
+                                    <div class="caa-effect-selector-row">
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '1' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="1" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '1'); ?> />
+                                            <span><?php esc_html_e('Scale', 'logo-collision'); ?></span>
+                                        </label>
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '2' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="2" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '2'); ?> />
+                                            <span><?php esc_html_e('Blur', 'logo-collision'); ?></span>
+                                        </label>
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '3' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="3" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '3'); ?> />
+                                            <span><?php esc_html_e('Slide', 'logo-collision'); ?></span>
+                                        </label>
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '4' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="4" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '4'); ?> />
+                                            <span><?php esc_html_e('Split', 'logo-collision'); ?></span>
+                                        </label>
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '5' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="5" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '5'); ?> />
+                                            <span><?php esc_html_e('Shuffle', 'logo-collision'); ?></span>
+                                        </label>
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '6' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="6" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '6'); ?> />
+                                            <span><?php esc_html_e('Rotate', 'logo-collision'); ?></span>
+                                        </label>
+                                        <label class="caa-effect-btn <?php echo $inst_effect === '7' ? 'caa-effect-btn-active' : ''; ?>">
+                                            <input type="radio" name="caa_instance_effect" value="7" class="caa-effect-radio caa-instance-effect-radio" <?php checked($inst_effect, '7'); ?> />
+                                            <span><?php esc_html_e('Move', 'logo-collision'); ?></span>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
                             <!-- Duration -->
                             <tr class="caa-responsive-field">
                                 <th scope="row">
@@ -1900,123 +1987,458 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
                         </tbody>
                     </table>
                     
-                    <!-- Effect-specific settings accordions -->
-                    <div class="caa-instance-effect-accordion" data-effect="1" <?php echo $inst_effect === '1' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 1: Scale Settings', 'logo-collision'); ?></h3>
+                    <h3><?php esc_html_e('Effect Settings', 'logo-collision'); ?></h3>
+                    <p class="description"><?php esc_html_e('Configure settings for the selected effect. These settings respect the viewport switcher above.', 'logo-collision'); ?></p>
+                    
+                    <?php
+                    // Get viewport values for effect settings
+                    $e1_scale_tablet = isset($selected_instance['effect1_scale_down_tablet']) ? $selected_instance['effect1_scale_down_tablet'] : '';
+                    $e1_scale_mobile = isset($selected_instance['effect1_scale_down_mobile']) ? $selected_instance['effect1_scale_down_mobile'] : '';
+                    $e1_ox_tablet = isset($selected_instance['effect1_origin_x_tablet']) ? $selected_instance['effect1_origin_x_tablet'] : '';
+                    $e1_ox_mobile = isset($selected_instance['effect1_origin_x_mobile']) ? $selected_instance['effect1_origin_x_mobile'] : '';
+                    $e1_oy_tablet = isset($selected_instance['effect1_origin_y_tablet']) ? $selected_instance['effect1_origin_y_tablet'] : '';
+                    $e1_oy_mobile = isset($selected_instance['effect1_origin_y_mobile']) ? $selected_instance['effect1_origin_y_mobile'] : '';
+                    
+                    $e2_blur_tablet = isset($selected_instance['effect2_blur_amount_tablet']) ? $selected_instance['effect2_blur_amount_tablet'] : '';
+                    $e2_blur_mobile = isset($selected_instance['effect2_blur_amount_mobile']) ? $selected_instance['effect2_blur_amount_mobile'] : '';
+                    $e2_scale_tablet = isset($selected_instance['effect2_blur_scale_tablet']) ? $selected_instance['effect2_blur_scale_tablet'] : '';
+                    $e2_scale_mobile = isset($selected_instance['effect2_blur_scale_mobile']) ? $selected_instance['effect2_blur_scale_mobile'] : '';
+                    $e2_dur_tablet = isset($selected_instance['effect2_blur_duration_tablet']) ? $selected_instance['effect2_blur_duration_tablet'] : '';
+                    $e2_dur_mobile = isset($selected_instance['effect2_blur_duration_mobile']) ? $selected_instance['effect2_blur_duration_mobile'] : '';
+                    
+                    $e4_xr_tablet = isset($selected_instance['effect4_text_x_range_tablet']) ? $selected_instance['effect4_text_x_range_tablet'] : '';
+                    $e4_xr_mobile = isset($selected_instance['effect4_text_x_range_mobile']) ? $selected_instance['effect4_text_x_range_mobile'] : '';
+                    $e4_yr_tablet = isset($selected_instance['effect4_text_y_range_tablet']) ? $selected_instance['effect4_text_y_range_tablet'] : '';
+                    $e4_yr_mobile = isset($selected_instance['effect4_text_y_range_mobile']) ? $selected_instance['effect4_text_y_range_mobile'] : '';
+                    $e4_stag_tablet = isset($selected_instance['effect4_stagger_amount_tablet']) ? $selected_instance['effect4_stagger_amount_tablet'] : '';
+                    $e4_stag_mobile = isset($selected_instance['effect4_stagger_amount_mobile']) ? $selected_instance['effect4_stagger_amount_mobile'] : '';
+                    
+                    $e5_iter_tablet = isset($selected_instance['effect5_shuffle_iterations_tablet']) ? $selected_instance['effect5_shuffle_iterations_tablet'] : '';
+                    $e5_iter_mobile = isset($selected_instance['effect5_shuffle_iterations_mobile']) ? $selected_instance['effect5_shuffle_iterations_mobile'] : '';
+                    $e5_dur_tablet = isset($selected_instance['effect5_shuffle_duration_tablet']) ? $selected_instance['effect5_shuffle_duration_tablet'] : '';
+                    $e5_dur_mobile = isset($selected_instance['effect5_shuffle_duration_mobile']) ? $selected_instance['effect5_shuffle_duration_mobile'] : '';
+                    $e5_delay_tablet = isset($selected_instance['effect5_char_delay_tablet']) ? $selected_instance['effect5_char_delay_tablet'] : '';
+                    $e5_delay_mobile = isset($selected_instance['effect5_char_delay_mobile']) ? $selected_instance['effect5_char_delay_mobile'] : '';
+                    
+                    $e6_rot_tablet = isset($selected_instance['effect6_rotation_tablet']) ? $selected_instance['effect6_rotation_tablet'] : '';
+                    $e6_rot_mobile = isset($selected_instance['effect6_rotation_mobile']) ? $selected_instance['effect6_rotation_mobile'] : '';
+                    $e6_xp_tablet = isset($selected_instance['effect6_x_percent_tablet']) ? $selected_instance['effect6_x_percent_tablet'] : '';
+                    $e6_xp_mobile = isset($selected_instance['effect6_x_percent_mobile']) ? $selected_instance['effect6_x_percent_mobile'] : '';
+                    $e6_ox_tablet = isset($selected_instance['effect6_origin_x_tablet']) ? $selected_instance['effect6_origin_x_tablet'] : '';
+                    $e6_ox_mobile = isset($selected_instance['effect6_origin_x_mobile']) ? $selected_instance['effect6_origin_x_mobile'] : '';
+                    $e6_oy_tablet = isset($selected_instance['effect6_origin_y_tablet']) ? $selected_instance['effect6_origin_y_tablet'] : '';
+                    $e6_oy_mobile = isset($selected_instance['effect6_origin_y_mobile']) ? $selected_instance['effect6_origin_y_mobile'] : '';
+                    
+                    $e7_dist_tablet = isset($selected_instance['effect7_move_distance_tablet']) ? $selected_instance['effect7_move_distance_tablet'] : '';
+                    $e7_dist_mobile = isset($selected_instance['effect7_move_distance_mobile']) ? $selected_instance['effect7_move_distance_mobile'] : '';
+                    ?>
+                    
+                    <!-- Effect 1: Scale Settings -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="1" <?php echo $inst_effect === '1' ? 'style="display: block;"' : ''; ?>>
                         <table class="form-table" role="presentation">
                             <tbody>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Scale Down', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect1_scale_down" value="<?php echo esc_attr($selected_instance['effect1_scale_down']); ?>" min="0" max="1" step="0.1" class="small-text" /></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Transform Origin', 'logo-collision'); ?></label></th>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Scale Down Value', 'logo-collision'); ?></label>
+                                        <?php if ($e1_scale_tablet !== '' || $e1_scale_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
                                     <td>
-                                        X: <input type="number" name="caa_instance_effect1_origin_x" value="<?php echo esc_attr($selected_instance['effect1_origin_x']); ?>" min="0" max="500" step="5" class="small-text" />%
-                                        Y: <input type="number" name="caa_instance_effect1_origin_y" value="<?php echo esc_attr($selected_instance['effect1_origin_y']); ?>" min="0" max="500" step="5" class="small-text" />%
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect1_scale_down" value="<?php echo esc_attr($selected_instance['effect1_scale_down']); ?>" min="0" max="1" step="0.1" class="small-text" />
+                                            <p class="description"><?php esc_html_e('Scale value when hidden (0.0 - 1.0).', 'logo-collision'); ?></p>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect1_scale_down_tablet" value="<?php echo esc_attr($e1_scale_tablet); ?>" min="0" max="1" step="0.1" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect1_scale_down']); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect1_scale_down_mobile" value="<?php echo esc_attr($e1_scale_mobile); ?>" min="0" max="1" step="0.1" class="small-text" placeholder="<?php echo esc_attr($e1_scale_tablet !== '' ? $e1_scale_tablet : $selected_instance['effect1_scale_down']); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Transform Origin X', 'logo-collision'); ?></label>
+                                        <?php if ($e1_ox_tablet !== '' || $e1_ox_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect1_origin_x" value="<?php echo esc_attr($selected_instance['effect1_origin_x']); ?>" min="0" max="500" step="5" class="small-text" /> %
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect1_origin_x_tablet" value="<?php echo esc_attr($e1_ox_tablet); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect1_origin_x']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect1_origin_x_mobile" value="<?php echo esc_attr($e1_ox_mobile); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($e1_ox_tablet !== '' ? $e1_ox_tablet : $selected_instance['effect1_origin_x']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Transform Origin Y', 'logo-collision'); ?></label>
+                                        <?php if ($e1_oy_tablet !== '' || $e1_oy_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect1_origin_y" value="<?php echo esc_attr($selected_instance['effect1_origin_y']); ?>" min="0" max="500" step="5" class="small-text" /> %
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect1_origin_y_tablet" value="<?php echo esc_attr($e1_oy_tablet); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect1_origin_y']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect1_origin_y_mobile" value="<?php echo esc_attr($e1_oy_mobile); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($e1_oy_tablet !== '' ? $e1_oy_tablet : $selected_instance['effect1_origin_y']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     
-                    <div class="caa-instance-effect-accordion" data-effect="2" <?php echo $inst_effect === '2' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 2: Blur Settings', 'logo-collision'); ?></h3>
+                    <!-- Effect 2: Blur Settings -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="2" <?php echo $inst_effect === '2' ? 'style="display: block;"' : ''; ?>>
                         <table class="form-table" role="presentation">
                             <tbody>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Blur Amount', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect2_blur_amount" value="<?php echo esc_attr($selected_instance['effect2_blur_amount']); ?>" min="0" max="100" step="0.5" class="small-text" /> px</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Blur Scale', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect2_blur_scale" value="<?php echo esc_attr($selected_instance['effect2_blur_scale']); ?>" min="0.5" max="1" step="0.05" class="small-text" /></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Blur Duration', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect2_blur_duration" value="<?php echo esc_attr($selected_instance['effect2_blur_duration']); ?>" min="0.1" max="5" step="0.1" class="small-text" /> s</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="caa-instance-effect-accordion" data-effect="3" <?php echo $inst_effect === '3' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 3: Slide Text', 'logo-collision'); ?></h3>
-                        <p class="description"><?php esc_html_e('This effect uses only the global animation settings above.', 'logo-collision'); ?></p>
-                    </div>
-                    
-                    <div class="caa-instance-effect-accordion" data-effect="4" <?php echo $inst_effect === '4' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 4: Text Split Settings', 'logo-collision'); ?></h3>
-                        <table class="form-table" role="presentation">
-                            <tbody>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('X Range', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect4_text_x_range" value="<?php echo esc_attr($selected_instance['effect4_text_x_range']); ?>" min="0" max="1000" step="5" class="small-text" /> px</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Y Range', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect4_text_y_range" value="<?php echo esc_attr($selected_instance['effect4_text_y_range']); ?>" min="0" max="1000" step="5" class="small-text" /> px</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Stagger', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect4_stagger_amount" value="<?php echo esc_attr($selected_instance['effect4_stagger_amount']); ?>" min="0" max="2.5" step="0.01" class="small-text" /> s</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="caa-instance-effect-accordion" data-effect="5" <?php echo $inst_effect === '5' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 5: Character Shuffle Settings', 'logo-collision'); ?></h3>
-                        <table class="form-table" role="presentation">
-                            <tbody>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Iterations', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect5_shuffle_iterations" value="<?php echo esc_attr($selected_instance['effect5_shuffle_iterations']); ?>" min="1" max="50" step="1" class="small-text" /></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Shuffle Duration', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect5_shuffle_duration" value="<?php echo esc_attr($selected_instance['effect5_shuffle_duration']); ?>" min="0.01" max="0.5" step="0.01" class="small-text" /> s</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Char Delay', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect5_char_delay" value="<?php echo esc_attr($selected_instance['effect5_char_delay']); ?>" min="0" max="1.0" step="0.01" class="small-text" /> s</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="caa-instance-effect-accordion" data-effect="6" <?php echo $inst_effect === '6' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 6: Rotation Settings', 'logo-collision'); ?></h3>
-                        <table class="form-table" role="presentation">
-                            <tbody>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Rotation', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect6_rotation" value="<?php echo esc_attr($selected_instance['effect6_rotation']); ?>" min="-180" max="900" step="5" class="small-text" /> &deg;</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('X Percent', 'logo-collision'); ?></label></th>
-                                    <td><input type="number" name="caa_instance_effect6_x_percent" value="<?php echo esc_attr($selected_instance['effect6_x_percent']); ?>" min="-50" max="250" step="1" class="small-text" /> %</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Transform Origin', 'logo-collision'); ?></label></th>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Blur Amount', 'logo-collision'); ?></label>
+                                        <?php if ($e2_blur_tablet !== '' || $e2_blur_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
                                     <td>
-                                        X: <input type="number" name="caa_instance_effect6_origin_x" value="<?php echo esc_attr($selected_instance['effect6_origin_x']); ?>" min="0" max="500" step="5" class="small-text" />%
-                                        Y: <input type="number" name="caa_instance_effect6_origin_y" value="<?php echo esc_attr($selected_instance['effect6_origin_y']); ?>" min="0" max="500" step="5" class="small-text" />%
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect2_blur_amount" value="<?php echo esc_attr($selected_instance['effect2_blur_amount']); ?>" min="0" max="100" step="0.5" class="small-text" /> px
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect2_blur_amount_tablet" value="<?php echo esc_attr($e2_blur_tablet); ?>" min="0" max="100" step="0.5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect2_blur_amount']); ?>" /> px
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect2_blur_amount_mobile" value="<?php echo esc_attr($e2_blur_mobile); ?>" min="0" max="100" step="0.5" class="small-text" placeholder="<?php echo esc_attr($e2_blur_tablet !== '' ? $e2_blur_tablet : $selected_instance['effect2_blur_amount']); ?>" /> px
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Blur Scale', 'logo-collision'); ?></label>
+                                        <?php if ($e2_scale_tablet !== '' || $e2_scale_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect2_blur_scale" value="<?php echo esc_attr($selected_instance['effect2_blur_scale']); ?>" min="0.5" max="1" step="0.05" class="small-text" />
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect2_blur_scale_tablet" value="<?php echo esc_attr($e2_scale_tablet); ?>" min="0.5" max="1" step="0.05" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect2_blur_scale']); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect2_blur_scale_mobile" value="<?php echo esc_attr($e2_scale_mobile); ?>" min="0.5" max="1" step="0.05" class="small-text" placeholder="<?php echo esc_attr($e2_scale_tablet !== '' ? $e2_scale_tablet : $selected_instance['effect2_blur_scale']); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Blur Duration', 'logo-collision'); ?></label>
+                                        <?php if ($e2_dur_tablet !== '' || $e2_dur_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect2_blur_duration" value="<?php echo esc_attr($selected_instance['effect2_blur_duration']); ?>" min="0.1" max="5" step="0.1" class="small-text" /> s
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect2_blur_duration_tablet" value="<?php echo esc_attr($e2_dur_tablet); ?>" min="0.1" max="5" step="0.1" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect2_blur_duration']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect2_blur_duration_mobile" value="<?php echo esc_attr($e2_dur_mobile); ?>" min="0.1" max="5" step="0.1" class="small-text" placeholder="<?php echo esc_attr($e2_dur_tablet !== '' ? $e2_dur_tablet : $selected_instance['effect2_blur_duration']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     
-                    <div class="caa-instance-effect-accordion" data-effect="7" <?php echo $inst_effect === '7' ? 'style="display:block;"' : ''; ?>>
-                        <h3><?php esc_html_e('Effect 7: Move Away Settings', 'logo-collision'); ?></h3>
+                    <!-- Effect 3: Slide (no additional settings) -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="3" <?php echo $inst_effect === '3' ? 'style="display: block;"' : ''; ?>>
+                        <p class="description"><?php esc_html_e('This effect uses only the animation settings above.', 'logo-collision'); ?></p>
+                    </div>
+                    
+                    <!-- Effect 4: Text Split Settings -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="4" <?php echo $inst_effect === '4' ? 'style="display: block;"' : ''; ?>>
                         <table class="form-table" role="presentation">
                             <tbody>
-                                <tr>
-                                    <th scope="row"><label><?php esc_html_e('Move Distance', 'logo-collision'); ?></label></th>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('X Range', 'logo-collision'); ?></label>
+                                        <?php if ($e4_xr_tablet !== '' || $e4_xr_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
                                     <td>
-                                        <input type="text" name="caa_instance_effect7_move_distance" value="<?php echo esc_attr($selected_instance['effect7_move_distance']); ?>" class="regular-text" placeholder="auto (e.g., 100px or 50%)" />
-                                        <p class="description"><?php esc_html_e('Leave empty for auto (moves element off-screen).', 'logo-collision'); ?></p>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect4_text_x_range" value="<?php echo esc_attr($selected_instance['effect4_text_x_range']); ?>" min="0" max="1000" step="5" class="small-text" /> px
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect4_text_x_range_tablet" value="<?php echo esc_attr($e4_xr_tablet); ?>" min="0" max="1000" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect4_text_x_range']); ?>" /> px
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect4_text_x_range_mobile" value="<?php echo esc_attr($e4_xr_mobile); ?>" min="0" max="1000" step="5" class="small-text" placeholder="<?php echo esc_attr($e4_xr_tablet !== '' ? $e4_xr_tablet : $selected_instance['effect4_text_x_range']); ?>" /> px
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Y Range', 'logo-collision'); ?></label>
+                                        <?php if ($e4_yr_tablet !== '' || $e4_yr_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect4_text_y_range" value="<?php echo esc_attr($selected_instance['effect4_text_y_range']); ?>" min="0" max="1000" step="5" class="small-text" /> px
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect4_text_y_range_tablet" value="<?php echo esc_attr($e4_yr_tablet); ?>" min="0" max="1000" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect4_text_y_range']); ?>" /> px
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect4_text_y_range_mobile" value="<?php echo esc_attr($e4_yr_mobile); ?>" min="0" max="1000" step="5" class="small-text" placeholder="<?php echo esc_attr($e4_yr_tablet !== '' ? $e4_yr_tablet : $selected_instance['effect4_text_y_range']); ?>" /> px
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Stagger Amount', 'logo-collision'); ?></label>
+                                        <?php if ($e4_stag_tablet !== '' || $e4_stag_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect4_stagger_amount" value="<?php echo esc_attr($selected_instance['effect4_stagger_amount']); ?>" min="0" max="2.5" step="0.01" class="small-text" /> s
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect4_stagger_amount_tablet" value="<?php echo esc_attr($e4_stag_tablet); ?>" min="0" max="2.5" step="0.01" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect4_stagger_amount']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect4_stagger_amount_mobile" value="<?php echo esc_attr($e4_stag_mobile); ?>" min="0" max="2.5" step="0.01" class="small-text" placeholder="<?php echo esc_attr($e4_stag_tablet !== '' ? $e4_stag_tablet : $selected_instance['effect4_stagger_amount']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Effect 5: Character Shuffle Settings -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="5" <?php echo $inst_effect === '5' ? 'style="display: block;"' : ''; ?>>
+                        <table class="form-table" role="presentation">
+                            <tbody>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Iterations', 'logo-collision'); ?></label>
+                                        <?php if ($e5_iter_tablet !== '' || $e5_iter_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect5_shuffle_iterations" value="<?php echo esc_attr($selected_instance['effect5_shuffle_iterations']); ?>" min="1" max="50" step="1" class="small-text" />
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect5_shuffle_iterations_tablet" value="<?php echo esc_attr($e5_iter_tablet); ?>" min="1" max="50" step="1" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect5_shuffle_iterations']); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect5_shuffle_iterations_mobile" value="<?php echo esc_attr($e5_iter_mobile); ?>" min="1" max="50" step="1" class="small-text" placeholder="<?php echo esc_attr($e5_iter_tablet !== '' ? $e5_iter_tablet : $selected_instance['effect5_shuffle_iterations']); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Shuffle Duration', 'logo-collision'); ?></label>
+                                        <?php if ($e5_dur_tablet !== '' || $e5_dur_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect5_shuffle_duration" value="<?php echo esc_attr($selected_instance['effect5_shuffle_duration']); ?>" min="0.01" max="0.5" step="0.01" class="small-text" /> s
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect5_shuffle_duration_tablet" value="<?php echo esc_attr($e5_dur_tablet); ?>" min="0.01" max="0.5" step="0.01" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect5_shuffle_duration']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect5_shuffle_duration_mobile" value="<?php echo esc_attr($e5_dur_mobile); ?>" min="0.01" max="0.5" step="0.01" class="small-text" placeholder="<?php echo esc_attr($e5_dur_tablet !== '' ? $e5_dur_tablet : $selected_instance['effect5_shuffle_duration']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Char Delay', 'logo-collision'); ?></label>
+                                        <?php if ($e5_delay_tablet !== '' || $e5_delay_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect5_char_delay" value="<?php echo esc_attr($selected_instance['effect5_char_delay']); ?>" min="0" max="1.0" step="0.01" class="small-text" /> s
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect5_char_delay_tablet" value="<?php echo esc_attr($e5_delay_tablet); ?>" min="0" max="1.0" step="0.01" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect5_char_delay']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect5_char_delay_mobile" value="<?php echo esc_attr($e5_delay_mobile); ?>" min="0" max="1.0" step="0.01" class="small-text" placeholder="<?php echo esc_attr($e5_delay_tablet !== '' ? $e5_delay_tablet : $selected_instance['effect5_char_delay']); ?>" /> s
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Effect 6: Rotation Settings -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="6" <?php echo $inst_effect === '6' ? 'style="display: block;"' : ''; ?>>
+                        <table class="form-table" role="presentation">
+                            <tbody>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Rotation', 'logo-collision'); ?></label>
+                                        <?php if ($e6_rot_tablet !== '' || $e6_rot_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect6_rotation" value="<?php echo esc_attr($selected_instance['effect6_rotation']); ?>" min="-180" max="900" step="5" class="small-text" /> &deg;
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect6_rotation_tablet" value="<?php echo esc_attr($e6_rot_tablet); ?>" min="-180" max="900" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect6_rotation']); ?>" /> &deg;
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect6_rotation_mobile" value="<?php echo esc_attr($e6_rot_mobile); ?>" min="-180" max="900" step="5" class="small-text" placeholder="<?php echo esc_attr($e6_rot_tablet !== '' ? $e6_rot_tablet : $selected_instance['effect6_rotation']); ?>" /> &deg;
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('X Percent', 'logo-collision'); ?></label>
+                                        <?php if ($e6_xp_tablet !== '' || $e6_xp_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect6_x_percent" value="<?php echo esc_attr($selected_instance['effect6_x_percent']); ?>" min="-50" max="250" step="1" class="small-text" /> %
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect6_x_percent_tablet" value="<?php echo esc_attr($e6_xp_tablet); ?>" min="-50" max="250" step="1" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect6_x_percent']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect6_x_percent_mobile" value="<?php echo esc_attr($e6_xp_mobile); ?>" min="-50" max="250" step="1" class="small-text" placeholder="<?php echo esc_attr($e6_xp_tablet !== '' ? $e6_xp_tablet : $selected_instance['effect6_x_percent']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Transform Origin X', 'logo-collision'); ?></label>
+                                        <?php if ($e6_ox_tablet !== '' || $e6_ox_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect6_origin_x" value="<?php echo esc_attr($selected_instance['effect6_origin_x']); ?>" min="0" max="500" step="5" class="small-text" /> %
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect6_origin_x_tablet" value="<?php echo esc_attr($e6_ox_tablet); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect6_origin_x']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect6_origin_x_mobile" value="<?php echo esc_attr($e6_ox_mobile); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($e6_ox_tablet !== '' ? $e6_ox_tablet : $selected_instance['effect6_origin_x']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Transform Origin Y', 'logo-collision'); ?></label>
+                                        <?php if ($e6_oy_tablet !== '' || $e6_oy_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="number" name="caa_instance_effect6_origin_y" value="<?php echo esc_attr($selected_instance['effect6_origin_y']); ?>" min="0" max="500" step="5" class="small-text" /> %
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="number" name="caa_instance_effect6_origin_y_tablet" value="<?php echo esc_attr($e6_oy_tablet); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($selected_instance['effect6_origin_y']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="number" name="caa_instance_effect6_origin_y_mobile" value="<?php echo esc_attr($e6_oy_mobile); ?>" min="0" max="500" step="5" class="small-text" placeholder="<?php echo esc_attr($e6_oy_tablet !== '' ? $e6_oy_tablet : $selected_instance['effect6_origin_y']); ?>" /> %
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Effect 7: Move Away Settings -->
+                    <div class="caa-effect-settings-panel caa-effect-settings-content" data-effect="7" <?php echo $inst_effect === '7' ? 'style="display: block;"' : ''; ?>>
+                        <table class="form-table" role="presentation">
+                            <tbody>
+                                <tr class="caa-responsive-field">
+                                    <th scope="row">
+                                        <label><?php esc_html_e('Move Distance', 'logo-collision'); ?></label>
+                                        <?php if ($e7_dist_tablet !== '' || $e7_dist_mobile !== '') : ?>
+                                            <span class="caa-override-indicator" title="<?php esc_attr_e('Has viewport override', 'logo-collision'); ?>">●</span>
+                                        <?php endif; ?>
+                                    </th>
+                                    <td>
+                                        <div class="caa-viewport-field caa-viewport-desktop caa-viewport-visible">
+                                            <input type="text" name="caa_instance_effect7_move_distance" value="<?php echo esc_attr($selected_instance['effect7_move_distance']); ?>" class="regular-text" placeholder="auto (e.g., 100px or 50%)" />
+                                            <p class="description"><?php esc_html_e('Leave empty for auto (moves element off-screen).', 'logo-collision'); ?></p>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-tablet">
+                                            <input type="text" name="caa_instance_effect7_move_distance_tablet" value="<?php echo esc_attr($e7_dist_tablet); ?>" class="regular-text" placeholder="<?php echo esc_attr($selected_instance['effect7_move_distance'] !== '' ? $selected_instance['effect7_move_distance'] : 'auto'); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Desktop)', 'logo-collision'); ?></span>
+                                        </div>
+                                        <div class="caa-viewport-field caa-viewport-mobile">
+                                            <input type="text" name="caa_instance_effect7_move_distance_mobile" value="<?php echo esc_attr($e7_dist_mobile); ?>" class="regular-text" placeholder="<?php echo esc_attr($e7_dist_tablet !== '' ? $e7_dist_tablet : ($selected_instance['effect7_move_distance'] !== '' ? $selected_instance['effect7_move_distance'] : 'auto')); ?>" />
+                                            <span class="caa-inherit-label"><?php esc_html_e('(inherits from Tablet)', 'logo-collision'); ?></span>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>

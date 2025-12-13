@@ -635,22 +635,16 @@
         // Instance Editor
         // =====================
 
-        // Handle instance effect radio button changes
+        // Handle instance effect radio change (Pro version - updates Effect Settings section)
         $('.caa-instance-effect-radio').on('change', function () {
             var selectedEffect = $(this).val();
-
-            // Hide all instance effect accordions
-            $('.caa-instance-effect-accordion').slideUp(200);
-
-            // Show the accordion for the selected effect
-            $('.caa-instance-effect-accordion[data-effect="' + selectedEffect + '"]').slideDown(200);
+            // Update active button class
+            $(this).closest('.caa-effect-selector-row').find('.caa-effect-btn').removeClass('caa-effect-btn-active');
+            $(this).closest('.caa-effect-btn').addClass('caa-effect-btn-active');
+            // Hide all effect settings panels, then show the selected one
+            $('.caa-effect-settings-content').hide();
+            $('.caa-effect-settings-content[data-effect="' + selectedEffect + '"]').show();
         });
-
-        // Initialize: show accordion for currently selected instance effect
-        var selectedInstanceEffect = $('.caa-instance-effect-radio:checked').val();
-        if (selectedInstanceEffect) {
-            $('.caa-instance-effect-accordion[data-effect="' + selectedInstanceEffect + '"]').show();
-        }
 
         // Handle instance filtering toggle
         $('#caa_instance_enable_filtering').on('change', function () {

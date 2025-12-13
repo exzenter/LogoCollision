@@ -3,7 +3,7 @@
  * Plugin Name: Logo Collision
  * Plugin URI: https://exzent.de/logo-collision/
  * Description: Apply context-aware scroll animations to your WordPress header logo when it would collide with scrolling content.
- * Version: 1.2.1
+ * Version: 1.2.4
  * Author: wpmitch
  * Author URI: https://exzent.de
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CAA_VERSION', '1.2.1');
+define('CAA_VERSION', '1.2.4');
 define('CAA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CAA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LOGO_COLLISION_PRO', true); // Build script sets to false for Free version
@@ -111,6 +111,8 @@ class Context_Aware_Animation {
             'enabled' => true,
             'logo_id' => '',
             'selected_effect' => '1',
+            'selected_effect_tablet' => '',
+            'selected_effect_mobile' => '',
             'included_elements' => '',
             'excluded_elements' => '',
             'global_offset' => '0',
@@ -396,8 +398,10 @@ class Context_Aware_Animation {
         $sanitized['included_elements'] = isset($data['included_elements']) ? sanitize_textarea_field($data['included_elements']) : '';
         $sanitized['excluded_elements'] = isset($data['excluded_elements']) ? sanitize_textarea_field($data['excluded_elements']) : '';
         
-        // Effect selection
+        // Effect selection (with viewport variants)
         $sanitized['selected_effect'] = isset($data['selected_effect']) ? $this->sanitize_effect($data['selected_effect']) : '1';
+        $sanitized['selected_effect_tablet'] = isset($data['selected_effect_tablet']) && $data['selected_effect_tablet'] !== '' ? $this->sanitize_effect($data['selected_effect_tablet']) : '';
+        $sanitized['selected_effect_mobile'] = isset($data['selected_effect_mobile']) && $data['selected_effect_mobile'] !== '' ? $this->sanitize_effect($data['selected_effect_mobile']) : '';
         
         // Offset fields (with viewport variants)
         $sanitized['global_offset'] = isset($data['global_offset']) ? $this->sanitize_offset($data['global_offset']) : '0';
@@ -590,6 +594,7 @@ class Context_Aware_Animation {
             
             // Mobile settings
             'caa_disable_mobile',
+            'caa_tablet_breakpoint',
             'caa_mobile_breakpoint',
             
             // Scroll speed modifier settings
@@ -1401,6 +1406,8 @@ class Context_Aware_Animation {
             'instanceId' => $instance_id,
             'logoId' => $instance['logo_id'],
             'selectedEffect' => $instance['selected_effect'],
+            'selectedEffectTablet' => isset($instance['selected_effect_tablet']) ? $instance['selected_effect_tablet'] : '',
+            'selectedEffectMobile' => isset($instance['selected_effect_mobile']) ? $instance['selected_effect_mobile'] : '',
             'includedElements' => $instance['included_elements'],
             'excludedElements' => $instance['excluded_elements'],
             'globalOffset' => $instance['global_offset'],

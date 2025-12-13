@@ -3,8 +3,8 @@ Contributors: wpmitch - exzent.de
 Tags: animation, scroll, gsap, header, logo, responsive
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.2.1
-Version: 1.2.1
+Stable tag: 1.2.4
+Version: 1.2.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -93,6 +93,23 @@ No, this plugin does not slow down your theme. The required libraries (GSAP and 
 
 == Changelog ==
 
+= 1.2.4 =
+* NEW: Responsive Effect Settings - Configure effect-specific settings per viewport (Desktop/Tablet/Mobile)
+* NEW: Override indicators show which settings have viewport-specific values
+* IMPROVED: Effect selector now uses radio buttons matching Free version UI style
+* FIXED: Added tablet breakpoint to settings export
+
+= 1.2.3 =
+* NEW: Responsive Effect Selection - Choose different effects per viewport (Desktop/Tablet/Mobile)
+* IMPROVED: Effect selection moved to Animation Settings section under viewport switcher
+* IMPROVED: Dynamic effect switching when browser resizes across breakpoints
+
+= 1.2.2 =
+* IMPROVED: Pro General Settings UI now matches Free version layout
+* IMPROVED: Core settings (Logo Selector, Include/Exclude Elements) use grid layout
+* IMPROVED: Effect selection now uses horizontal button cards instead of radio list
+* IMPROVED: Effect-specific settings now inline panels instead of accordions
+
 = 1.2.1 =
 * IMPROVED: Element Effect Mappings UI - Chevron toggle now in main row for expand/collapse
 * IMPROVED: Settings panel visibility independent from override toggle (collapse to save space while keeping override active)
@@ -129,6 +146,15 @@ No, this plugin does not slow down your theme. The required libraries (GSAP and 
 * Automatic content detection
 
 == Upgrade Notice ==
+
+= 1.2.4 =
+Responsive Effect Settings - configure effect-specific parameters per viewport with visual override indicators.
+
+= 1.2.3 =
+Responsive Effect Selection - choose different effects for Desktop, Tablet, and Mobile viewports.
+
+= 1.2.2 =
+Pro General Settings UI redesigned to match Free version layout with grid and button cards.
 
 = 1.2.1 =
 Improved Element Effect Mappings UI with collapsible chevron toggle in the main row.

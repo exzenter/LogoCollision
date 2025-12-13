@@ -3,7 +3,7 @@
  * Plugin Name: Logo Collision
  * Plugin URI: https://exzent.de/logo-collision/
  * Description: Apply context-aware scroll animations to your WordPress header logo when it would collide with scrolling content.
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: wpmitch
  * Author URI: https://exzent.de
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CAA_VERSION', '1.2.4');
+define('CAA_VERSION', '1.2.5');
 define('CAA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CAA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LOGO_COLLISION_PRO', true); // Build script sets to false for Free version
@@ -1412,29 +1412,91 @@ class Context_Aware_Animation {
             'excludedElements' => $instance['excluded_elements'],
             'globalOffset' => $instance['global_offset'],
             'debugMode' => $instance['debug_mode'],
+            // Animation settings (desktop)
             'duration' => $instance['duration'],
             'ease' => $instance['ease'],
             'offsetStart' => $instance['offset_start'],
             'offsetEnd' => $instance['offset_end'],
+            // Animation settings (tablet)
+            'durationTablet' => isset($instance['duration_tablet']) ? $instance['duration_tablet'] : '',
+            'easeTablet' => isset($instance['ease_tablet']) ? $instance['ease_tablet'] : '',
+            'offsetStartTablet' => isset($instance['offset_start_tablet']) ? $instance['offset_start_tablet'] : '',
+            'offsetEndTablet' => isset($instance['offset_end_tablet']) ? $instance['offset_end_tablet'] : '',
+            // Animation settings (mobile)
+            'durationMobile' => isset($instance['duration_mobile']) ? $instance['duration_mobile'] : '',
+            'easeMobile' => isset($instance['ease_mobile']) ? $instance['ease_mobile'] : '',
+            'offsetStartMobile' => isset($instance['offset_start_mobile']) ? $instance['offset_start_mobile'] : '',
+            'offsetEndMobile' => isset($instance['offset_end_mobile']) ? $instance['offset_end_mobile'] : '',
             'effectMappings' => $effect_mappings,
-            // Effect settings
+            // Effect 1 settings (desktop)
             'effect1ScaleDown' => $instance['effect1_scale_down'],
             'effect1OriginX' => $instance['effect1_origin_x'],
             'effect1OriginY' => $instance['effect1_origin_y'],
+            // Effect 1 settings (tablet)
+            'effect1ScaleDownTablet' => isset($instance['effect1_scale_down_tablet']) ? $instance['effect1_scale_down_tablet'] : '',
+            'effect1OriginXTablet' => isset($instance['effect1_origin_x_tablet']) ? $instance['effect1_origin_x_tablet'] : '',
+            'effect1OriginYTablet' => isset($instance['effect1_origin_y_tablet']) ? $instance['effect1_origin_y_tablet'] : '',
+            // Effect 1 settings (mobile)
+            'effect1ScaleDownMobile' => isset($instance['effect1_scale_down_mobile']) ? $instance['effect1_scale_down_mobile'] : '',
+            'effect1OriginXMobile' => isset($instance['effect1_origin_x_mobile']) ? $instance['effect1_origin_x_mobile'] : '',
+            'effect1OriginYMobile' => isset($instance['effect1_origin_y_mobile']) ? $instance['effect1_origin_y_mobile'] : '',
+            // Effect 2 settings (desktop)
             'effect2BlurAmount' => $instance['effect2_blur_amount'],
             'effect2BlurScale' => $instance['effect2_blur_scale'],
             'effect2BlurDuration' => $instance['effect2_blur_duration'],
+            // Effect 2 settings (tablet)
+            'effect2BlurAmountTablet' => isset($instance['effect2_blur_amount_tablet']) ? $instance['effect2_blur_amount_tablet'] : '',
+            'effect2BlurScaleTablet' => isset($instance['effect2_blur_scale_tablet']) ? $instance['effect2_blur_scale_tablet'] : '',
+            'effect2BlurDurationTablet' => isset($instance['effect2_blur_duration_tablet']) ? $instance['effect2_blur_duration_tablet'] : '',
+            // Effect 2 settings (mobile)
+            'effect2BlurAmountMobile' => isset($instance['effect2_blur_amount_mobile']) ? $instance['effect2_blur_amount_mobile'] : '',
+            'effect2BlurScaleMobile' => isset($instance['effect2_blur_scale_mobile']) ? $instance['effect2_blur_scale_mobile'] : '',
+            'effect2BlurDurationMobile' => isset($instance['effect2_blur_duration_mobile']) ? $instance['effect2_blur_duration_mobile'] : '',
+            // Effect 4 settings (desktop)
             'effect4TextXRange' => $instance['effect4_text_x_range'],
             'effect4TextYRange' => $instance['effect4_text_y_range'],
             'effect4StaggerAmount' => $instance['effect4_stagger_amount'],
+            // Effect 4 settings (tablet)
+            'effect4TextXRangeTablet' => isset($instance['effect4_text_x_range_tablet']) ? $instance['effect4_text_x_range_tablet'] : '',
+            'effect4TextYRangeTablet' => isset($instance['effect4_text_y_range_tablet']) ? $instance['effect4_text_y_range_tablet'] : '',
+            'effect4StaggerAmountTablet' => isset($instance['effect4_stagger_amount_tablet']) ? $instance['effect4_stagger_amount_tablet'] : '',
+            // Effect 4 settings (mobile)
+            'effect4TextXRangeMobile' => isset($instance['effect4_text_x_range_mobile']) ? $instance['effect4_text_x_range_mobile'] : '',
+            'effect4TextYRangeMobile' => isset($instance['effect4_text_y_range_mobile']) ? $instance['effect4_text_y_range_mobile'] : '',
+            'effect4StaggerAmountMobile' => isset($instance['effect4_stagger_amount_mobile']) ? $instance['effect4_stagger_amount_mobile'] : '',
+            // Effect 5 settings (desktop)
             'effect5ShuffleIterations' => $instance['effect5_shuffle_iterations'],
             'effect5ShuffleDuration' => $instance['effect5_shuffle_duration'],
             'effect5CharDelay' => $instance['effect5_char_delay'],
+            // Effect 5 settings (tablet)
+            'effect5ShuffleIterationsTablet' => isset($instance['effect5_shuffle_iterations_tablet']) ? $instance['effect5_shuffle_iterations_tablet'] : '',
+            'effect5ShuffleDurationTablet' => isset($instance['effect5_shuffle_duration_tablet']) ? $instance['effect5_shuffle_duration_tablet'] : '',
+            'effect5CharDelayTablet' => isset($instance['effect5_char_delay_tablet']) ? $instance['effect5_char_delay_tablet'] : '',
+            // Effect 5 settings (mobile)
+            'effect5ShuffleIterationsMobile' => isset($instance['effect5_shuffle_iterations_mobile']) ? $instance['effect5_shuffle_iterations_mobile'] : '',
+            'effect5ShuffleDurationMobile' => isset($instance['effect5_shuffle_duration_mobile']) ? $instance['effect5_shuffle_duration_mobile'] : '',
+            'effect5CharDelayMobile' => isset($instance['effect5_char_delay_mobile']) ? $instance['effect5_char_delay_mobile'] : '',
+            // Effect 6 settings (desktop)
             'effect6Rotation' => $instance['effect6_rotation'],
             'effect6XPercent' => $instance['effect6_x_percent'],
             'effect6OriginX' => $instance['effect6_origin_x'],
             'effect6OriginY' => $instance['effect6_origin_y'],
+            // Effect 6 settings (tablet)
+            'effect6RotationTablet' => isset($instance['effect6_rotation_tablet']) ? $instance['effect6_rotation_tablet'] : '',
+            'effect6XPercentTablet' => isset($instance['effect6_x_percent_tablet']) ? $instance['effect6_x_percent_tablet'] : '',
+            'effect6OriginXTablet' => isset($instance['effect6_origin_x_tablet']) ? $instance['effect6_origin_x_tablet'] : '',
+            'effect6OriginYTablet' => isset($instance['effect6_origin_y_tablet']) ? $instance['effect6_origin_y_tablet'] : '',
+            // Effect 6 settings (mobile)
+            'effect6RotationMobile' => isset($instance['effect6_rotation_mobile']) ? $instance['effect6_rotation_mobile'] : '',
+            'effect6XPercentMobile' => isset($instance['effect6_x_percent_mobile']) ? $instance['effect6_x_percent_mobile'] : '',
+            'effect6OriginXMobile' => isset($instance['effect6_origin_x_mobile']) ? $instance['effect6_origin_x_mobile'] : '',
+            'effect6OriginYMobile' => isset($instance['effect6_origin_y_mobile']) ? $instance['effect6_origin_y_mobile'] : '',
+            // Effect 7 settings (desktop)
             'effect7MoveDistance' => $instance['effect7_move_distance'],
+            // Effect 7 settings (tablet)
+            'effect7MoveDistanceTablet' => isset($instance['effect7_move_distance_tablet']) ? $instance['effect7_move_distance_tablet'] : '',
+            // Effect 7 settings (mobile)
+            'effect7MoveDistanceMobile' => isset($instance['effect7_move_distance_mobile']) ? $instance['effect7_move_distance_mobile'] : '',
         );
         
         return $settings_array;

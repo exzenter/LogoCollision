@@ -444,14 +444,17 @@ function initInstance(instanceSettings, globalSettings) {
     const useOverride = overrideSettings !== null;
     const settings = instanceSettings;
 
-    // Base animation properties (static - ease doesn't change)
+    // Get current viewport for responsive settings
+    const viewport = getCurrentViewport(breakpoints);
+
+    // Base animation properties - get responsive values
     const baseDuration = useOverride && overrideSettings.duration !== undefined
       ? parseFloat(overrideSettings.duration)
-      : (parseFloat(settings.duration) || defaultAnimationProps.duration);
+      : (parseFloat(getResponsiveSetting(settings, 'duration', viewport)) || defaultAnimationProps.duration);
 
     const baseEase = useOverride && overrideSettings.ease !== undefined
       ? overrideSettings.ease
-      : (settings.ease || defaultAnimationProps.ease);
+      : (getResponsiveSetting(settings, 'ease', viewport) || defaultAnimationProps.ease);
 
     // Function to get animation props with scroll speed multiplier applied at RUNTIME
     // This is called inside onEnter/onLeave/onTransition so the multiplier reflects
@@ -463,10 +466,10 @@ function initInstance(instanceSettings, globalSettings) {
 
     const effectOffsetStart = useOverride && overrideSettings.offsetStart !== undefined
       ? parseInt(overrideSettings.offsetStart)
-      : offsetStart;
+      : parseInt(getResponsiveSetting(settings, 'offsetStart', viewport)) || offsetStart;
     const effectOffsetEnd = useOverride && overrideSettings.offsetEnd !== undefined
       ? parseInt(overrideSettings.offsetEnd)
-      : offsetEnd;
+      : parseInt(getResponsiveSetting(settings, 'offsetEnd', viewport)) || offsetEnd;
 
     debug.log('Building effect', effectNumber, 'with override:', useOverride, {
       baseDuration,
@@ -481,13 +484,13 @@ function initInstance(instanceSettings, globalSettings) {
         const effect1Settings = {
           scaleDown: useOverride && overrideSettings.effect1ScaleDown !== undefined
             ? parseFloat(overrideSettings.effect1ScaleDown)
-            : (settings.effect1ScaleDown !== undefined && settings.effect1ScaleDown !== '' ? parseFloat(settings.effect1ScaleDown) : 0),
+            : parseFloat(getResponsiveSetting(settings, 'effect1ScaleDown', viewport)) || 0,
           originX1: useOverride && overrideSettings.effect1OriginX !== undefined
             ? parseInt(overrideSettings.effect1OriginX)
-            : (settings.effect1OriginX !== undefined && settings.effect1OriginX !== '' ? parseInt(settings.effect1OriginX) : 0),
+            : parseInt(getResponsiveSetting(settings, 'effect1OriginX', viewport)) || 0,
           originY1: useOverride && overrideSettings.effect1OriginY !== undefined
             ? parseInt(overrideSettings.effect1OriginY)
-            : (settings.effect1OriginY !== undefined && settings.effect1OriginY !== '' ? parseInt(settings.effect1OriginY) : 50)
+            : parseInt(getResponsiveSetting(settings, 'effect1OriginY', viewport)) || 50
         };
         return {
           offsetStartAmount: effectOffsetStart,
@@ -530,13 +533,13 @@ function initInstance(instanceSettings, globalSettings) {
         const effect2Settings = {
           blurAmount: useOverride && overrideSettings.effect2BlurAmount !== undefined
             ? parseFloat(overrideSettings.effect2BlurAmount)
-            : (settings.effect2BlurAmount !== undefined && settings.effect2BlurAmount !== '' ? parseFloat(settings.effect2BlurAmount) : 5),
+            : parseFloat(getResponsiveSetting(settings, 'effect2BlurAmount', viewport)) || 5,
           blurScale: useOverride && overrideSettings.effect2BlurScale !== undefined
             ? parseFloat(overrideSettings.effect2BlurScale)
-            : (settings.effect2BlurScale !== undefined && settings.effect2BlurScale !== '' ? parseFloat(settings.effect2BlurScale) : 0.9),
+            : parseFloat(getResponsiveSetting(settings, 'effect2BlurScale', viewport)) || 0.9,
           blurDuration: useOverride && overrideSettings.effect2BlurDuration !== undefined
             ? parseFloat(overrideSettings.effect2BlurDuration)
-            : (settings.effect2BlurDuration !== undefined && settings.effect2BlurDuration !== '' ? parseFloat(settings.effect2BlurDuration) : 0.2)
+            : parseFloat(getResponsiveSetting(settings, 'effect2BlurDuration', viewport)) || 0.2
         };
         return {
           offsetStartAmount: effectOffsetStart,
@@ -634,13 +637,13 @@ function initInstance(instanceSettings, globalSettings) {
         const effect4Settings = {
           textXRange: useOverride && overrideSettings.effect4TextXRange !== undefined
             ? parseInt(overrideSettings.effect4TextXRange)
-            : (settings.effect4TextXRange !== undefined && settings.effect4TextXRange !== '' ? parseInt(settings.effect4TextXRange) : 50),
+            : parseInt(getResponsiveSetting(settings, 'effect4TextXRange', viewport)) || 50,
           textYRange: useOverride && overrideSettings.effect4TextYRange !== undefined
             ? parseInt(overrideSettings.effect4TextYRange)
-            : (settings.effect4TextYRange !== undefined && settings.effect4TextYRange !== '' ? parseInt(settings.effect4TextYRange) : 40),
+            : parseInt(getResponsiveSetting(settings, 'effect4TextYRange', viewport)) || 40,
           staggerAmount: useOverride && overrideSettings.effect4StaggerAmount !== undefined
             ? parseFloat(overrideSettings.effect4StaggerAmount)
-            : (settings.effect4StaggerAmount !== undefined && settings.effect4StaggerAmount !== '' ? parseFloat(settings.effect4StaggerAmount) : 0.03)
+            : parseFloat(getResponsiveSetting(settings, 'effect4StaggerAmount', viewport)) || 0.03
         };
         return {
           offsetStartAmount: effectOffsetStart,
@@ -677,13 +680,13 @@ function initInstance(instanceSettings, globalSettings) {
         const effect5Settings = {
           shuffleIterations: useOverride && overrideSettings.effect5ShuffleIterations !== undefined
             ? parseInt(overrideSettings.effect5ShuffleIterations)
-            : (settings.effect5ShuffleIterations !== undefined && settings.effect5ShuffleIterations !== '' ? parseInt(settings.effect5ShuffleIterations) : 2),
+            : parseInt(getResponsiveSetting(settings, 'effect5ShuffleIterations', viewport)) || 2,
           shuffleDuration: useOverride && overrideSettings.effect5ShuffleDuration !== undefined
             ? parseFloat(overrideSettings.effect5ShuffleDuration)
-            : (settings.effect5ShuffleDuration !== undefined && settings.effect5ShuffleDuration !== '' ? parseFloat(settings.effect5ShuffleDuration) : 0.03),
+            : parseFloat(getResponsiveSetting(settings, 'effect5ShuffleDuration', viewport)) || 0.03,
           charDelay: useOverride && overrideSettings.effect5CharDelay !== undefined
             ? parseFloat(overrideSettings.effect5CharDelay)
-            : (settings.effect5CharDelay !== undefined && settings.effect5CharDelay !== '' ? parseFloat(settings.effect5CharDelay) : 0.03)
+            : parseFloat(getResponsiveSetting(settings, 'effect5CharDelay', viewport)) || 0.03
         };
         return {
           offsetStartAmount: effectOffsetStart,
@@ -727,16 +730,16 @@ function initInstance(instanceSettings, globalSettings) {
         const effect6Settings = {
           rotation: useOverride && overrideSettings.effect6Rotation !== undefined
             ? parseInt(overrideSettings.effect6Rotation)
-            : (settings.effect6Rotation !== undefined && settings.effect6Rotation !== '' ? parseInt(settings.effect6Rotation) : -90),
+            : parseInt(getResponsiveSetting(settings, 'effect6Rotation', viewport)) || -90,
           xPercent: useOverride && overrideSettings.effect6XPercent !== undefined
             ? parseInt(overrideSettings.effect6XPercent)
-            : (settings.effect6XPercent !== undefined && settings.effect6XPercent !== '' ? parseInt(settings.effect6XPercent) : -5),
+            : parseInt(getResponsiveSetting(settings, 'effect6XPercent', viewport)) || -5,
           originX6: useOverride && overrideSettings.effect6OriginX !== undefined
             ? parseInt(overrideSettings.effect6OriginX)
-            : (settings.effect6OriginX !== undefined && settings.effect6OriginX !== '' ? parseInt(settings.effect6OriginX) : 0),
+            : parseInt(getResponsiveSetting(settings, 'effect6OriginX', viewport)) || 0,
           originY6: useOverride && overrideSettings.effect6OriginY !== undefined
             ? parseInt(overrideSettings.effect6OriginY)
-            : (settings.effect6OriginY !== undefined && settings.effect6OriginY !== '' ? parseInt(settings.effect6OriginY) : 100)
+            : parseInt(getResponsiveSetting(settings, 'effect6OriginY', viewport)) || 100
         };
         return {
           offsetStartAmount: effectOffsetStart,
@@ -777,10 +780,11 @@ function initInstance(instanceSettings, globalSettings) {
         };
 
       case 7: // Move Away
+        const effect7MoveValue = getResponsiveSetting(settings, 'effect7MoveDistance', viewport);
         const effect7Settings = {
           moveDistance: useOverride && overrideSettings.effect7MoveDistance !== undefined && overrideSettings.effect7MoveDistance !== ''
             ? overrideSettings.effect7MoveDistance
-            : (settings.effect7MoveDistance !== undefined && settings.effect7MoveDistance !== '' ? settings.effect7MoveDistance : null)
+            : (effect7MoveValue !== undefined && effect7MoveValue !== '' ? effect7MoveValue : null)
         };
         return {
           offsetStartAmount: effectOffsetStart,

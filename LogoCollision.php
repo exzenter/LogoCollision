@@ -3,7 +3,7 @@
  * Plugin Name: Logo Collision
  * Plugin URI: https://exzent.de/logo-collision/
  * Description: Apply context-aware scroll animations to your WordPress header logo when it would collide with scrolling content.
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: wpmitch
  * Author URI: https://exzent.de
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CAA_VERSION', '1.1.1');
+define('CAA_VERSION', '1.2.0');
 define('CAA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CAA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LOGO_COLLISION_PRO', true); // Build script sets to false for Free version
@@ -592,6 +592,14 @@ class Context_Aware_Animation {
             'caa_disable_mobile',
             'caa_mobile_breakpoint',
             
+            // Scroll speed modifier settings
+            'caa_scroll_speed_enabled',
+            'caa_scroll_speed_threshold_low',
+            'caa_scroll_speed_threshold_high',
+            'caa_scroll_speed_multiplier_low',
+            'caa_scroll_speed_multiplier_high',
+            'caa_scroll_speed_curve',
+            
             // Global animation settings
             'caa_duration',
             'caa_ease',
@@ -728,6 +736,43 @@ class Context_Aware_Animation {
             'type' => 'string',
             'sanitize_callback' => 'absint',
             'default' => '600'
+        ));
+        
+        // Scroll Speed Modifier settings (global)
+        register_setting('caa_settings_group', 'caa_scroll_speed_enabled', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '0'
+        ));
+        
+        register_setting('caa_settings_group', 'caa_scroll_speed_threshold_low', array(
+            'type' => 'string',
+            'sanitize_callback' => 'absint',
+            'default' => '400'
+        ));
+        
+        register_setting('caa_settings_group', 'caa_scroll_speed_threshold_high', array(
+            'type' => 'string',
+            'sanitize_callback' => 'absint',
+            'default' => '1200'
+        ));
+        
+        register_setting('caa_settings_group', 'caa_scroll_speed_multiplier_low', array(
+            'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_float'),
+            'default' => '1.0'
+        ));
+        
+        register_setting('caa_settings_group', 'caa_scroll_speed_multiplier_high', array(
+            'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_float'),
+            'default' => '0.1'
+        ));
+        
+        register_setting('caa_settings_group', 'caa_scroll_speed_curve', array(
+            'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_scroll_speed_curve'),
+            'default' => 'linear'
         ));
         
         // Global animation settings
@@ -992,6 +1037,14 @@ class Context_Aware_Animation {
     public function sanitize_ease($value) {
         $valid_eases = array('power1', 'power2', 'power3', 'power4', 'expo', 'sine', 'back', 'elastic', 'bounce', 'none');
         return in_array($value, $valid_eases) ? $value : 'power4';
+    }
+    
+    /**
+     * Sanitize scroll speed curve type
+     */
+    public function sanitize_scroll_speed_curve($value) {
+        $valid_curves = array('linear', 'ease-in', 'ease-out', 'ease-in-out');
+        return in_array($value, $valid_curves, true) ? $value : 'linear';
     }
     
     /**
@@ -1411,6 +1464,14 @@ class Context_Aware_Animation {
         $tablet_breakpoint = get_option('caa_tablet_breakpoint', '782');
         $mobile_breakpoint = get_option('caa_mobile_breakpoint', '600');
         
+        // Get scroll speed modifier settings (global)
+        $scroll_speed_enabled = get_option('caa_scroll_speed_enabled', '0');
+        $scroll_speed_threshold_low = get_option('caa_scroll_speed_threshold_low', '400');
+        $scroll_speed_threshold_high = get_option('caa_scroll_speed_threshold_high', '1200');
+        $scroll_speed_multiplier_low = get_option('caa_scroll_speed_multiplier_low', '1.0');
+        $scroll_speed_multiplier_high = get_option('caa_scroll_speed_multiplier_high', '0.1');
+        $scroll_speed_curve = get_option('caa_scroll_speed_curve', 'linear');
+        
         // Get all enabled instances' settings
         $instances_settings = $this->build_all_instances_settings();
         
@@ -1419,6 +1480,12 @@ class Context_Aware_Animation {
             'disableMobile' => $disable_mobile,
             'tabletBreakpoint' => $tablet_breakpoint,
             'mobileBreakpoint' => $mobile_breakpoint,
+            'scrollSpeedEnabled' => $scroll_speed_enabled,
+            'scrollSpeedThresholdLow' => $scroll_speed_threshold_low,
+            'scrollSpeedThresholdHigh' => $scroll_speed_threshold_high,
+            'scrollSpeedMultiplierLow' => $scroll_speed_multiplier_low,
+            'scrollSpeedMultiplierHigh' => $scroll_speed_multiplier_high,
+            'scrollSpeedCurve' => $scroll_speed_curve,
             'instances' => $instances_settings,
         );
     }

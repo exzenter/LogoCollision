@@ -489,6 +489,14 @@ if (isset($_POST['caa_save_settings']) && check_admin_referer('caa_settings_nonc
     update_option('caa_tablet_breakpoint', isset($_POST['caa_tablet_breakpoint']) ? absint(wp_unslash($_POST['caa_tablet_breakpoint'])) : '782');
     update_option('caa_mobile_breakpoint', isset($_POST['caa_mobile_breakpoint']) ? absint(wp_unslash($_POST['caa_mobile_breakpoint'])) : '600');
     
+    // Scroll speed modifier settings (global)
+    update_option('caa_scroll_speed_enabled', isset($_POST['caa_scroll_speed_enabled']) ? '1' : '0');
+    update_option('caa_scroll_speed_threshold_low', isset($_POST['caa_scroll_speed_threshold_low']) ? absint(wp_unslash($_POST['caa_scroll_speed_threshold_low'])) : '400');
+    update_option('caa_scroll_speed_threshold_high', isset($_POST['caa_scroll_speed_threshold_high']) ? absint(wp_unslash($_POST['caa_scroll_speed_threshold_high'])) : '1200');
+    update_option('caa_scroll_speed_multiplier_low', isset($_POST['caa_scroll_speed_multiplier_low']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_scroll_speed_multiplier_low']))) : '1.0');
+    update_option('caa_scroll_speed_multiplier_high', isset($_POST['caa_scroll_speed_multiplier_high']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_scroll_speed_multiplier_high']))) : '0.1');
+    update_option('caa_scroll_speed_curve', isset($_POST['caa_scroll_speed_curve']) ? sanitize_text_field(wp_unslash($_POST['caa_scroll_speed_curve'])) : 'linear');
+    
     // Global animation settings
     update_option('caa_duration', isset($_POST['caa_duration']) ? caa_sanitize_float(sanitize_text_field(wp_unslash($_POST['caa_duration']))) : '0.6');
     update_option('caa_ease', isset($_POST['caa_ease']) ? caa_sanitize_ease(sanitize_text_field(wp_unslash($_POST['caa_ease']))) : 'power4');
@@ -579,6 +587,14 @@ $disable_mobile = get_option('caa_disable_mobile', '0');
 // Get viewport breakpoints (global settings)
 $tablet_breakpoint = get_option('caa_tablet_breakpoint', '782');
 $mobile_breakpoint = get_option('caa_mobile_breakpoint', '600');
+
+// Get scroll speed modifier settings (global)
+$scroll_speed_enabled = get_option('caa_scroll_speed_enabled', '0');
+$scroll_speed_threshold_low = get_option('caa_scroll_speed_threshold_low', '400');
+$scroll_speed_threshold_high = get_option('caa_scroll_speed_threshold_high', '1200');
+$scroll_speed_multiplier_low = get_option('caa_scroll_speed_multiplier_low', '1.0');
+$scroll_speed_multiplier_high = get_option('caa_scroll_speed_multiplier_high', '0.1');
+$scroll_speed_curve = get_option('caa_scroll_speed_curve', 'linear');
 
 // Get animation settings from Instance 1
 $duration = isset($instance_1['duration']) ? $instance_1['duration'] : '0.6';
@@ -1372,6 +1388,131 @@ wp_localize_script('caa-admin', 'caaAdmin', array(
                         <p class="description">
                             <?php esc_html_e('When enabled, effects will be disabled on viewports smaller than the specified breakpoint width.', 'logo-collision'); ?>
                         </p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row">
+                        <label for="caa_scroll_speed_enabled"><?php esc_html_e('Scroll Speed Modifier', 'logo-collision'); ?></label>
+                    </th>
+                    <td>
+                        <label>
+                            <input 
+                                type="checkbox" 
+                                id="caa_scroll_speed_enabled" 
+                                name="caa_scroll_speed_enabled" 
+                                value="1"
+                                <?php checked($scroll_speed_enabled, '1'); ?>
+                            />
+                            <?php esc_html_e('Enable scroll speed animation modifier', 'logo-collision'); ?>
+                        </label>
+                        <p class="description">
+                            <?php esc_html_e('When enabled, animation durations are adjusted based on how fast the user is scrolling. Faster scrolling = quicker animations.', 'logo-collision'); ?>
+                        </p>
+                        <div class="caa-scroll-speed-settings" style="margin-top: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+                            <table class="form-table" style="margin: 0;">
+                                <tr>
+                                    <th scope="row" style="width: 180px;">
+                                        <label for="caa_scroll_speed_curve"><?php esc_html_e('Interpolation Curve', 'logo-collision'); ?></label>
+                                    </th>
+                                    <td>
+                                        <select id="caa_scroll_speed_curve" name="caa_scroll_speed_curve">
+                                            <option value="linear" <?php selected($scroll_speed_curve, 'linear'); ?>><?php esc_html_e('Linear', 'logo-collision'); ?></option>
+                                            <option value="ease-in" <?php selected($scroll_speed_curve, 'ease-in'); ?>><?php esc_html_e('Ease-In (slow to react)', 'logo-collision'); ?></option>
+                                            <option value="ease-out" <?php selected($scroll_speed_curve, 'ease-out'); ?>><?php esc_html_e('Ease-Out (quick to react)', 'logo-collision'); ?></option>
+                                            <option value="ease-in-out" <?php selected($scroll_speed_curve, 'ease-in-out'); ?>><?php esc_html_e('Ease-In-Out (balanced)', 'logo-collision'); ?></option>
+                                        </select>
+                                        <p class="description">
+                                            <?php esc_html_e('How the multiplier transitions between thresholds.', 'logo-collision'); ?>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="caa_scroll_speed_threshold_low"><?php esc_html_e('Low Speed Threshold', 'logo-collision'); ?></label>
+                                    </th>
+                                    <td>
+                                        <input 
+                                            type="number" 
+                                            id="caa_scroll_speed_threshold_low" 
+                                            name="caa_scroll_speed_threshold_low" 
+                                            value="<?php echo esc_attr($scroll_speed_threshold_low); ?>"
+                                            class="small-text"
+                                            min="0"
+                                            max="5000"
+                                            step="50"
+                                        />
+                                        <span>px/s</span>
+                                        <p class="description">
+                                            <?php esc_html_e('Below this speed, animations play at normal duration.', 'logo-collision'); ?>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="caa_scroll_speed_threshold_high"><?php esc_html_e('High Speed Threshold', 'logo-collision'); ?></label>
+                                    </th>
+                                    <td>
+                                        <input 
+                                            type="number" 
+                                            id="caa_scroll_speed_threshold_high" 
+                                            name="caa_scroll_speed_threshold_high" 
+                                            value="<?php echo esc_attr($scroll_speed_threshold_high); ?>"
+                                            class="small-text"
+                                            min="0"
+                                            max="5000"
+                                            step="50"
+                                        />
+                                        <span>px/s</span>
+                                        <p class="description">
+                                            <?php esc_html_e('Above this speed, animations play at maximum speed.', 'logo-collision'); ?>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="caa_scroll_speed_multiplier_low"><?php esc_html_e('Low Speed Multiplier', 'logo-collision'); ?></label>
+                                    </th>
+                                    <td>
+                                        <input 
+                                            type="number" 
+                                            id="caa_scroll_speed_multiplier_low" 
+                                            name="caa_scroll_speed_multiplier_low" 
+                                            value="<?php echo esc_attr($scroll_speed_multiplier_low); ?>"
+                                            class="small-text"
+                                            min="0.01"
+                                            max="2"
+                                            step="0.05"
+                                        />
+                                        <span>×</span>
+                                        <p class="description">
+                                            <?php esc_html_e('Duration multiplier at low speed (1.0 = normal, 0.5 = half duration).', 'logo-collision'); ?>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="caa_scroll_speed_multiplier_high"><?php esc_html_e('High Speed Multiplier', 'logo-collision'); ?></label>
+                                    </th>
+                                    <td>
+                                        <input 
+                                            type="number" 
+                                            id="caa_scroll_speed_multiplier_high" 
+                                            name="caa_scroll_speed_multiplier_high" 
+                                            value="<?php echo esc_attr($scroll_speed_multiplier_high); ?>"
+                                            class="small-text"
+                                            min="0.01"
+                                            max="2"
+                                            step="0.05"
+                                        />
+                                        <span>×</span>
+                                        <p class="description">
+                                            <?php esc_html_e('Duration multiplier at high speed (0.1 = almost instant).', 'logo-collision'); ?>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </td>
                 </tr>
                 

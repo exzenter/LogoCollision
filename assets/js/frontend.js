@@ -7,6 +7,69 @@ const defaultAnimationProps = {
   ease: 'power4'
 };
 
+// Scroll speed tracking (global across all instances)
+let lastScrollY = window.scrollY;
+let lastScrollTime = performance.now();
+let currentScrollSpeed = 0;
+
+// Track scroll speed globally
+window.addEventListener('scroll', () => {
+  const now = performance.now();
+  const deltaY = Math.abs(window.scrollY - lastScrollY);
+  const deltaTime = (now - lastScrollTime) / 1000; // seconds
+
+  if (deltaTime > 0.01) { // Minimum time threshold to avoid division issues
+    currentScrollSpeed = deltaY / deltaTime; // px/s
+  }
+
+  lastScrollY = window.scrollY;
+  lastScrollTime = now;
+}, { passive: true });
+
+/**
+ * Calculate duration multiplier based on current scroll speed
+ * @param {Object} globalSettings - Global settings from PHP
+ * @returns {number} Multiplier to apply to animation duration
+ */
+function getScrollSpeedMultiplier(globalSettings) {
+  if (!globalSettings || globalSettings.scrollSpeedEnabled !== '1') {
+    return 1.0;
+  }
+
+  const low = parseFloat(globalSettings.scrollSpeedThresholdLow) || 400;
+  const high = parseFloat(globalSettings.scrollSpeedThresholdHigh) || 1200;
+  const multLow = parseFloat(globalSettings.scrollSpeedMultiplierLow) || 1.0;
+  const multHigh = parseFloat(globalSettings.scrollSpeedMultiplierHigh) || 0.1;
+  const curve = globalSettings.scrollSpeedCurve || 'linear';
+
+  // Clamp speed to thresholds
+  if (currentScrollSpeed <= low) return multLow;
+  if (currentScrollSpeed >= high) return multHigh;
+
+  // Calculate normalized position (0 to 1) between thresholds
+  let t = (currentScrollSpeed - low) / (high - low);
+
+  // Apply curve transformation
+  switch (curve) {
+    case 'ease-in':
+      // Slow start, fast end: t^2
+      t = t * t;
+      break;
+    case 'ease-out':
+      // Fast start, slow end: t*(2-t) = 1-(1-t)^2
+      t = t * (2 - t);
+      break;
+    case 'ease-in-out':
+      // Slow both ends: quadratic bezier
+      t = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      break;
+    // 'linear' is default - no transformation needed
+  }
+
+  // Interpolate between multipliers
+  return multLow + t * (multHigh - multLow);
+}
+
 /**
  * Get current viewport based on breakpoints
  * @param {Object} breakpoints - { tablet: 782, mobile: 600 }
@@ -365,14 +428,22 @@ function initInstance(instanceSettings, globalSettings) {
     const useOverride = overrideSettings !== null;
     const settings = instanceSettings;
 
-    const animationProps = {
-      duration: useOverride && overrideSettings.duration !== undefined
-        ? parseFloat(overrideSettings.duration)
-        : (parseFloat(settings.duration) || defaultAnimationProps.duration),
-      ease: useOverride && overrideSettings.ease !== undefined
-        ? overrideSettings.ease
-        : (settings.ease || defaultAnimationProps.ease)
-    };
+    // Base animation properties (static - ease doesn't change)
+    const baseDuration = useOverride && overrideSettings.duration !== undefined
+      ? parseFloat(overrideSettings.duration)
+      : (parseFloat(settings.duration) || defaultAnimationProps.duration);
+
+    const baseEase = useOverride && overrideSettings.ease !== undefined
+      ? overrideSettings.ease
+      : (settings.ease || defaultAnimationProps.ease);
+
+    // Function to get animation props with scroll speed multiplier applied at RUNTIME
+    // This is called inside onEnter/onLeave/onTransition so the multiplier reflects
+    // the scroll speed AT THE MOMENT the animation is triggered
+    const getAnimProps = () => ({
+      duration: baseDuration * getScrollSpeedMultiplier(globalSettings),
+      ease: baseEase
+    });
 
     const effectOffsetStart = useOverride && overrideSettings.offsetStart !== undefined
       ? parseInt(overrideSettings.offsetStart)
@@ -382,7 +453,8 @@ function initInstance(instanceSettings, globalSettings) {
       : offsetEnd;
 
     debug.log('Building effect', effectNumber, 'with override:', useOverride, {
-      animationProps,
+      baseDuration,
+      baseEase,
       effectOffsetStart,
       effectOffsetEnd,
       overrideSettings
@@ -411,7 +483,7 @@ function initInstance(instanceSettings, globalSettings) {
             target.currentTween = gsap.to(target, {
               scale: effect1Settings.scaleDown,
               autoAlpha: 0,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           },
@@ -420,7 +492,7 @@ function initInstance(instanceSettings, globalSettings) {
             target.currentTween = gsap.to(target, {
               scale: 1,
               autoAlpha: 1,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { resetElement(target); target.currentTween = null; }
             });
           },
@@ -432,7 +504,7 @@ function initInstance(instanceSettings, globalSettings) {
             target.currentTween = gsap.to(target, {
               scale: effect1Settings.scaleDown,
               autoAlpha: 0,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           }
@@ -471,7 +543,7 @@ function initInstance(instanceSettings, globalSettings) {
             target.currentTween = gsap.to(target, {
               filter: 'blur(0px)',
               scale: 1,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { resetElement(target); target.currentTween = null; }
             });
           },
@@ -503,7 +575,7 @@ function initInstance(instanceSettings, globalSettings) {
             gsap.set(target, { transformOrigin: '50% 50%' });
             target.currentTween = gsap.to(target.querySelector('.oh__inner'), {
               yPercent: -102,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           },
@@ -512,7 +584,7 @@ function initInstance(instanceSettings, globalSettings) {
             target.currentTween = gsap.to(target.querySelector('.oh__inner'), {
               startAt: { yPercent: 102 },
               yPercent: 0,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => {
                 target.innerHTML = originalHTMLContent;
                 target.classList.remove('oh');
@@ -536,7 +608,7 @@ function initInstance(instanceSettings, globalSettings) {
             // Animate directly from current state to new target
             target.currentTween = gsap.to(innerEl, {
               yPercent: -102,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           }
@@ -568,7 +640,7 @@ function initInstance(instanceSettings, globalSettings) {
               y: () => gsap.utils.random(-effect4Settings.textYRange, 0),
               autoAlpha: 0,
               stagger: { amount: effect4Settings.staggerAmount, from: 'random' },
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           },
@@ -579,7 +651,7 @@ function initInstance(instanceSettings, globalSettings) {
             target.currentTween = gsap.to(chars, {
               x: 0, y: 0, autoAlpha: 1,
               stagger: { amount: effect4Settings.staggerAmount, from: 'random' },
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.innerHTML = originalHTMLContent; resetElement(target); target.currentTween = null; }
             });
           }
@@ -661,7 +733,7 @@ function initInstance(instanceSettings, globalSettings) {
               xPercent: effect6Settings.xPercent,
               rotation: effect6Settings.rotation,
               y: () => target.offsetWidth - target.offsetHeight,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           },
@@ -669,7 +741,7 @@ function initInstance(instanceSettings, globalSettings) {
             if (target.currentTween) target.currentTween.kill();
             target.currentTween = gsap.to(target, {
               rotation: 0, xPercent: 0, y: 0,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { resetElement(target); target.currentTween = null; }
             });
           },
@@ -682,7 +754,7 @@ function initInstance(instanceSettings, globalSettings) {
               xPercent: effect6Settings.xPercent,
               rotation: effect6Settings.rotation,
               y: () => target.offsetWidth - target.offsetHeight,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { target.currentTween = null; }
             });
           }
@@ -700,7 +772,7 @@ function initInstance(instanceSettings, globalSettings) {
           onEnter: (target) => {
             if (target.currentTween) target.currentTween.kill();
             resetElement(target);
-            let animationProps_effect7 = { ...animationProps };
+            let animationProps_effect7 = { ...getAnimProps() };
             if (effect7Settings.moveDistance) {
               const match = effect7Settings.moveDistance.match(/^([+-]?\d+(?:\.\d+)?)(px|%)$/i);
               if (match) {
@@ -725,14 +797,14 @@ function initInstance(instanceSettings, globalSettings) {
             if (target.currentTween) target.currentTween.kill();
             target.currentTween = gsap.to(target, {
               x: 0, xPercent: 0,
-              ...animationProps,
+              ...getAnimProps(),
               onComplete: () => { resetElement(target); target.currentTween = null; }
             });
           },
           onTransition: (target) => {
             if (target.currentTween) target.currentTween.kill();
             // Build target animation props
-            let animationProps_effect7 = { ...animationProps };
+            let animationProps_effect7 = { ...getAnimProps() };
             if (effect7Settings.moveDistance) {
               const match = effect7Settings.moveDistance.match(/^([+-]?\d+(?:\.\d+)?)(px|%)$/i);
               if (match) {

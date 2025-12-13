@@ -1,0 +1,291 @@
+# Logo Collision Pro - Marketing Website Content
+
+---
+
+## HERO SECTION
+
+### Headline
+**Transform Your Header Logo Into a Scroll-Reactive Masterpiece**
+
+### Subheadline
+Logo Collision Pro automatically detects when your header logo would collide with scrolling content and applies stunning animations to move it out of the way. No code required.
+
+### CTA
+🚀 Get Logo Collision Pro | View Demo
+
+---
+
+## THE PROBLEM & SOLUTION
+
+### The Problem
+Your sticky header logo overlaps with your page content as users scroll. It looks sloppy, unprofessional, and distracts from your beautiful design.
+
+### The Solution
+Logo Collision intelligently detects collision zones and triggers gorgeous GSAP-powered animations to gracefully move your logo out of the way—then smoothly returns it when safe.
+
+---
+
+## EFFECTS SHOWCASE
+
+### 7 Premium Animation Effects
+
+**1. Scale**
+Subtle and professional. Your logo elegantly shrinks away during collisions and smoothly scales back.
+
+**2. Blur & Fade**
+Modern and sophisticated. Apply a soft blur effect with optional scaling for a dreamy transition.
+
+**3. Slide Text**
+Perfect for text logos. Your logo slides up or down to avoid content gracefully.
+
+**4. Text Split**
+Dramatic and memorable. Characters scatter in different directions with staggered timing, then reassemble.
+
+**5. Character Shuffle**
+Playful and engaging. Characters scramble and shuffle before revealing themselves again.
+
+**6. Rotation**
+Dynamic and eye-catching. Your logo rotates and moves simultaneously for maximum visual impact.
+
+**7. Move Away**
+Clean and minimal. Logo slides horizontally off-screen, returning smoothly when clear.
+
+---
+
+## FREE VS PRO COMPARISON
+
+### Free Version - Get Started
+✅ All 7 animation effects
+✅ Single logo instance
+✅ Basic animation settings (Duration, Easing, Offsets)
+✅ Element inclusion/exclusion
+✅ Global offset settings
+✅ Export/Import settings
+✅ Debug mode
+
+### Pro Version - Unlock Everything
+✅ Everything in Free, plus:
+⭐ **Up to 10 Instances** - Animate multiple logos or elements with completely separate settings
+⭐ **Responsive Viewport Settings** - Different animations for Desktop, Tablet & Mobile
+⭐ **Element Effect Mappings** - Different effects for different sections (Scale for hero, Blur for portfolio, Rotation for testimonials)
+⭐ **Advanced Page Filtering** - Control exactly where animations run by post type, pages, posts, or specific items
+⭐ **Priority Support**
+⭐ **Future Pro Features**
+
+---
+
+## KEY PRO FEATURES (DETAILED)
+
+### 🖥️ Responsive Viewport Settings
+Not every device is the same. Configure completely different animation behaviors for Desktop, Tablet, and Mobile:
+
+- **Per-viewport Duration** - Faster animations on mobile for better UX
+- **Per-viewport Easing** - Different feels for different screens
+- **Per-viewport Offsets** - Fine-tune collision detection per device
+- **Smart Fallback** - Mobile inherits from Tablet, Tablet inherits from Desktop
+- **Custom Breakpoints** - Set your own responsive thresholds
+
+### 🔄 Multiple Instances (Up to 10)
+Run completely independent animations on different elements:
+
+- Animate your main logo AND a secondary navigation logo
+- Different effects for light/dark header variants
+- Separate settings for each instance
+- Enable/disable instances individually
+
+### 🎯 Element Effect Mappings
+One logo, multiple effects based on what it collides with:
+
+- Hero section collision → Use Scale effect
+- Portfolio section → Use Blur effect
+- Testimonials → Use Rotation effect
+- Footer → Use Move Away
+
+Map specific CSS selectors to specific effects for maximum design control.
+
+### 📄 Advanced Page Filtering
+Complete control over where your animations run:
+
+- **Include Mode**: Only run on selected pages
+- **Exclude Mode**: Run everywhere except selected pages
+- Filter by post types (Pages, Posts, Custom Post Types)
+- Select specific individual items
+- Perfect for landing pages, specific campaigns, or excluding checkout pages
+
+---
+
+## SOCIAL PROOF SECTION
+
+### Built for Performance
+"A sample page with all effects enabled achieves a **perfect 100 performance score** on Google Lighthouse."
+
+### Powered by Industry Standards
+Built on GSAP—the same animation library trusted by Netflix, Nike, and over 10 million websites.
+
+---
+
+## TECHNICAL HIGHLIGHTS
+
+✅ **Zero Bloat** - GSAP & ScrollTrigger load only when needed
+✅ **Clean Code** - WordPress Coding Standards compliant
+✅ **No Conflicts** - Works with any theme or page builder
+✅ **Automatic Detection** - Works with common WordPress content selectors out of the box
+✅ **Developer Friendly** - Export/Import JSON settings for staging-to-production workflows
+✅ **Regular Updates** - Active development with new features
+
+---
+
+## PRICING SECTION
+
+### Single Site License
+$XX/year
+- 1 site activation
+- 1 year of updates & support
+- All Pro features
+
+### Developer License
+$XX/year
+- Unlimited site activations
+- 1 year of updates & support
+- All Pro features
+- Priority support
+
+### Lifetime Deal
+$XXX one-time
+- Unlimited sites forever
+- Lifetime updates
+- All future features included
+
+---
+
+## FAQ
+
+**Q: Will this slow down my site?**
+A: No! The GSAP libraries are lightweight and only load when the effect is active. We've tested perfect 100 Lighthouse scores.
+
+**Q: Does it work with my theme?**
+A: Yes! Logo Collision works with any WordPress theme. Just enter your logo's CSS selector and you're ready.
+
+**Q: Can I upgrade from Free to Pro without losing settings?**
+A: Absolutely! Export your settings from Free, import them in Pro. Zero configuration lost.
+
+**Q: What if I need help with setup?**
+A: Pro users get priority support. We'll help you get the perfect selector and settings.
+
+**Q: Do I need to know CSS?**
+A: Just a basic CSS selector for your logo (like `#site-logo` or `.logo`). That's it!
+
+---
+
+## FINAL CTA
+
+### Ready to Make Your Logo Come Alive?
+Stop letting your header logo overlap with content like it's 2005. Get Logo Collision Pro and create scroll-reactive magic in minutes.
+
+[Get Logo Collision Pro] [View Live Demo] [Compare Plans]
+
+---
+
+## META/SEO
+
+**Page Title:** Logo Collision Pro - Scroll-Reactive Logo Animations for WordPress
+
+**Meta Description:** Transform your WordPress header logo with 7 stunning scroll-triggered animations. Logo Collision Pro detects content collisions and elegantly moves your logo. No code needed.
+
+**Keywords:** WordPress logo animation, scroll animation, GSAP WordPress, header animation, sticky header effects, scroll triggered animation, logo effects plugin
+
+---
+
+# EMAIL SEQUENCES
+
+## Welcome Email (After Free Download)
+
+**Subject:** Your Logo Collision plugin is ready! 🎨
+
+Hey!
+
+Thanks for downloading Logo Collision! You now have access to 7 beautiful scroll-triggered animations for your header logo.
+
+Quick Start:
+1. Go to Settings → Logo Collision
+2. Enter your logo selector (e.g., #site-logo)
+3. Pick your favorite effect
+4. Watch the magic happen!
+
+**Ready for more power?**
+Upgrade to Pro to unlock:
+- Responsive settings for mobile/tablet
+- Up to 10 independent instances
+- Map different effects to different sections
+- Advanced page filtering
+
+[Upgrade to Pro →]
+
+Happy animating!
+
+---
+
+## Pro Upgrade Email (3 days after free download)
+
+**Subject:** Your logo could be doing SO much more...
+
+Hey there!
+
+I noticed you've been using Logo Collision Free—awesome!
+
+But I wanted to share what Pro users are doing:
+
+🎯 **Different effects for different sections**
+Imagine: Scale effect on your hero, Blur on portfolio, Rotation on testimonials. Element Mapping makes this effortless.
+
+📱 **Mobile-optimized animations**
+Your desktop settings might be too slow for mobile users. Pro lets you fine-tune per device.
+
+🔄 **Multiple logos, multiple animations**
+Got a sticky nav AND a mobile menu logo? Handle both with separate instances.
+
+[See the Full Comparison →]
+
+The upgrade takes 2 minutes. Your settings? They import automatically.
+
+Cheers!
+
+---
+
+# SOCIAL MEDIA SNIPPETS
+
+**Twitter/X:**
+🚀 New WordPress plugin alert!
+
+Logo Collision detects when your sticky header logo would overlap content and triggers beautiful GSAP animations to move it.
+
+7 effects. Zero code. Perfect performance scores.
+
+Free version available. Pro unlocks the real magic ✨
+
+[link]
+
+**LinkedIn:**
+Just launched Logo Collision—a WordPress plugin that solves a design problem nobody talks about:
+
+That awkward moment when your sticky header logo overlaps your page content.
+
+Our solution: Intelligent collision detection + 7 gorgeous GSAP-powered animations.
+
+The logo detects when it would collide with content and gracefully animates out of the way. Scale, blur, text split, rotation... pick your style.
+
+Free version covers the basics. Pro adds responsive settings, multiple instances, and section-specific effect mapping.
+
+Check it out: [link]
+
+---
+
+# DOCUMENTATION CALLOUTS
+
+**For the Docs/Help Section:**
+
+> 💡 **Pro Tip:** Use the Export/Import feature to backup your settings before making major changes. You can always restore them!
+
+> ⚡ **Performance Note:** Logo Collision loads GSAP only when effects are active on the current page. Sites using this plugin regularly achieve 100/100 Lighthouse performance scores.
+
+> 🎯 **Best Practice:** Start with the Scale or Blur effect for a subtle, professional look. Save dramatic effects like Text Split for creative/agency sites.
